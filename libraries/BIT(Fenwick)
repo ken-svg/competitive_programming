@@ -1,0 +1,57 @@
+#BIT(Fenwick Tree)
+
+class BIT: 
+  """ n: size, op: operation, ie: identity element, inv: inverse function """
+  """ 逆元を持つ、可換な演算に対して適用可能 """
+  def __init__(self, n, op=lambda x,y: x+y, inv=lambda x:-x, ie = 0):
+    self.n = n
+    self.op = op
+    self.ie = ie
+    self.inv = inv
+    self.el = [ie]*(n+1) 
+    self.data = [ie]*(n+1)
+  
+  def add(self, i, x):
+    op = self.op
+    self.el[i] = op(self.el[I], x)
+    data = self.data
+    while i <= self.n:
+      data[i] = op(data[i], x)
+      i += i & -i
+      
+  def _obtain(self, i): # sum from 1 to i
+    data = self.data
+    op = self.op
+    ans = 0
+    while i > 0:
+      ans = op(data[i], ans)
+      i -= i & -i
+    return ans
+    
+  def apply(self, l, r):
+    return  self.op(self.inv(self._obtain(l-1)), self._obtain(r-1))
+      
+  def construct(self, A):
+    for i, x in enumerate(A):
+      self.add(i+1,x)     
+      
+N, Q = map(int,input().split())
+A = list(map(int,input().split()))
+bt = bit(N, op=lambda x,y: x^y, inv=lambda x:x, ie = 0)
+bt.construct(A)
+
+for _ in range(Q):
+  t, x, y = map(int,input().split())
+  if t == 1:
+    bt.add(x, y)
+  else:
+    print(bt.apply(x, y+1))
+    
+    
+# 用法一覧：
+# def construct(self, A): # 初期値配列Aをインプットし、BITを構築する
+# def add(self, i, x): # i番目にxを加算
+# def apply(l, r): # 半開区間[l, r)の総和を計算
+
+    
+  
