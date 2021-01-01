@@ -37,55 +37,6 @@ class LazySegTree():
   def _upd(self, now, x):
     self.data[now] = self.act(self.data[now], x)
     if now < self.size: self.lazy[now] = self.cp(self.lazy[now], x)
-      
-  def _topdown(self, l, r): # 1, 伝搬処理(共通)
-    _push = self._push
-    row_num = self.size.bit_length() # 行数(深さ)
-    l += self.size; r += self.size
-    
-    l_now = 1; r_now = 2;
-    for d in range(row_num-1): # dを桁数とする
-      sft = row_num - 1 - d #シフトすべき桁数
-      if l != l_now << sft: 
-        _push(l_now) #左側の伝搬
-      if r != r_now << sft: 
-        _push(r_now-1) #右側の伝搬  
-      l_now <<= 1; r_now <<= 1;
-      if (l >> (sft-1)) != l_now:     l_now += 1
-      if ((r-1) >> (sft-1)) != r_now-1:  r_now -= 1
-  
-  def _bottomup_action(self, l, r, x):
-    _pop = self._pop; _upd = self._upd;
-    row_num = self.size.bit_length() # 行数(深さ)
-    l += self.size; r += self.size
-    
-    l1 = l; l2 = l; r1 = r; r2 = r; 
-    #[l1,r1):計算中の区間, [l2,r2):まだxを反映していない区間
-    
-    # 更新
-    while l2 < r2: #区間[l2,r2)が残っていないときはこの処理を行わない
-      if l2 & 1: _upd(l2, x); l2 += 1
-      if r2 & 1: _upd(r2-1, x); r2 -= 1
-      l2 >>= 1; r2 >>= 1;
-    
-    # 上へ再計算
-    for d in range(row_num-2,-1,-1): # dを桁数とする
-      sft = row_num - 1 - d
-      if l != (l >> sft) << sft: _pop(l >> sft)   # 左側の計算
-      if r != (r >> sft) << sft: _pop((r-1) >> sft) # 右側の計算
-  
-  def _bottomup_apply(self, l, r):
-    size = self.size; op = self.op; data = self.data;
-    r += size; l += size
-    ans_lt = ans_rt = self.ie;
-    while r - l > 1:
-      if l & 1: ans_lt = op(ans_lt, data[l]); l += 1
-      if r & 1: ans_rt = op(data[r-1], ans_rt); r -= 1
-      r >>= 1; l >>= 1;
-    if r - l == 1:
-      return op(op(ans_lt, data[l]), ans_rt)
-    elif r == l:
-      return op(ans_lt, ans_rt) 
     
   def action(self, l, r, x): # 半開区間[l,r)にxを作用
     if l >= r: return 
