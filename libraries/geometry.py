@@ -13,5 +13,5 @@ def intersection(C1, C2): #2円C1, C2の交点
   xm = (xr * aux) / (2*R2) + x1
   ym = (yr * aux) / (2*R2) + y1
   dx = (yr * math.sqrt(D)) / (2*R2)
-  dy = (xr * math.sqrt(D)) / (2*R2)
+  dy = -(xr * math.sqrt(D)) / (2*R2)
   return [(xm + dx, ym + dy), (xm - dx, ym - dy)]
