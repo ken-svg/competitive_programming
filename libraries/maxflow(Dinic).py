@@ -126,3 +126,11 @@ class maxflow:
       now_flow, fr, _, _ = rev_edge
       ans[e_id>>1] = {"cap": cap, "flow": now_flow, "from": fr, "to": to}
     return ans
+
+# method 一覧
+# def add_edge(fr, to, cap, cap_rev = 0): frからtoへ容量capの辺を張る。cap_revは逆辺の初期容量。
+# def reset(): # 全ての辺を残したまま、流量をリセットする
+# def flow(s, t, flow_limit = 10**20): sからtまでフローを流し、最大流量を返す。flow_limitが指定されている場合、その流量以下最大の流量を達成するフローを流し、流量を返す。
+# def min_cut(s): 現在のフローの残余グラフ上で、点sから行ける点をTrue, いけない点をFalseで返す
+# get_edge(edge_idx): 辺番号edge_idxの辺の状態を返す。{"cap": 残り容量, "flow": 現在流量, "from": 始点, "to": 終点}の辞書を返す。
+# get_edges(): 全ての辺について、上記形式の辞書を返す。
