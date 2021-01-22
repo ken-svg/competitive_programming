@@ -18,7 +18,7 @@ class maxflow:
     self.edges.append(forward)
     self.edges.append(backward)
     self.edge_num += 1
-    # 辺の持ち方: [残り容量, 行き先, 順辺か逆辺か, 相互参照, 辺番号]
+    # 辺の持ち方: [残り容量, 行き先, 相互参照, 辺番号]
     self.G[fr].append(forward)
     self.G[to].append(backward)
     
