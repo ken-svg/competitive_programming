@@ -29,7 +29,7 @@ class mincostflow():
     # 始点sから各点への最短路を計算し、めいいっぱいフローを流す
     G = self.G
     pot = self.potential # ポテンシャル
-    INF = 1<<20
+    INF = 1<<60
     
     dist = [-1]*self.n # 各点までの距離
     path = [None]*self.n # 各点の直前に通るべき辺の番号
@@ -123,3 +123,10 @@ class mincostflow():
     return ans
     
     
+# method 一覧
+# def add_edge(fr, to, cap, cost, cap_rev = 0): frからtoへ容量cap, コストcostの辺を張る。cap_revは逆辺の初期容量。
+# def reset(): # 全ての辺を残したまま、流量をリセットする
+# def min_cost_max_flow(s, t, flow_limit = 1<<60): sからtまでフローを流し、最大流量およびそのときのコストを返す。flow_limitが指定されている場合、その流量以下最大の流量を達成するフローを流し、流量とコストを返す。
+# def min_cost_slope(s, t, flow_limit = 1<<60): sからtまでフローを流し、各流量における最小コストを返す（内部のフローは最大フローとなる）
+# get_edge(edge_idx): 辺番号edge_idxの辺の状態を返す。{"cap": 残り容量, "flow": 現在流量, "from": 始点, "to": 終点, "cost": 辺のコスト}の辞書を返す。
+# get_edges(): 全ての辺について、上記形式の辞書を返す。
