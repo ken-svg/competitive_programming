@@ -1,4 +1,4 @@
-~12/29 LazySegTree(遅延伝搬セグメントツリー)
-~12/31 MaxFlow(最大流)
-~1/3 MinCostFlow(最小費用流)
+~2/1 strings(文字列)
+~2/10 numbers(整数)
+~2/17 convolution(畳み込み)
 atcoder-libralyに準拠
