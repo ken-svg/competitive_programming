@@ -4,9 +4,9 @@ mod = 10**9 + 7
 _inv_t = {}
 _inv_t[1] = 1
 _inv_t[0] = 0
-def inv(x):
+def inv(x, mod):
   if x not in _inv_t:
-    _inv_t[x] = inv(mod % x) * (mod - mod // x) % mod
+    _inv_t[x] = inv(mod % x, mod) * (mod - mod // x) % mod
   return _inv_t[x]
 
 # 約数列挙 O(\sqrt(N))
