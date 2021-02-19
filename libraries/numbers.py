@@ -15,7 +15,7 @@ def find_divisors(N):
   lim = math.floor(math.sqrt(N)+10**(-10))
   ans_l = []
   ans_u = []
-  for i in range(1,lim):
+  for i in range(1,lim+1):
     if (N % i): continue
     ans_l.append(i)
     j = N // i
