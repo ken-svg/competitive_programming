@@ -148,7 +148,7 @@ def convolution(A, B, mods = [998244353], roots = [15311432]): # 配列AとBの�
     for j in range(len(AB_ans)):
       AB_ans[j] = (AB_ans[j]*y*mod1 + AB_next[j]*x*mod0) % (mod0*mod1)
     mod0 *= mod1
-  AB_ans = [((a + (mod0>>1)) % mod0) - (mod0>>1) for a in AB_ans]
+  AB_ans = [((a + (mod0>>1)) % mod0) - (mod0>>1) for a in AB_ans] # mod0//2以上は負数で表示
   return AB_ans
 
 # 使用例： https://atcoder.jp/contests/atc001/submissions/20033938
