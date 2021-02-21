@@ -94,7 +94,7 @@ def ext_gcd(a, b):
     x, y = y, x
   return x, y, d
 
-def convolution(A, B, mods = [2013265921], roots = [137]): # 配列AとBの畳み込みを返す
+def convolution(A, B, mods = [998244353], roots = [15311432]): # 配列AとBの畳み込みを返す
   # より高精度なオプションの例： mods = [469762049, 2013265921, 167772161], roots = [30, 137, 17]
   # 注意： ext_gcd, _Number_Theorem_transformationを要求する。これらを同時に貼り付けること。
   # inv: Trueなら逆変換, mod:素数の法(リストで複数与えることも可能), root: 原始根(リストで複数与えることも可能,modも同じ長さのリスト)
