@@ -1,4 +1,4 @@
-# saffix arrray
+# suffix arrray
 # O(n(logn)^2)
 
 def sa_log(S):
