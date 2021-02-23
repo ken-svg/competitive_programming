@@ -1,4 +1,7 @@
 # このページをすべて貼り付けること！
+# 入っているもの
+# suffix_array(S)
+# lcp_array(S, sa)
 
 def suffix_array(S):
   # 入力： 英小文字列or数列S, 出力： 接尾辞配列 sa (0...N-1の順列)
@@ -161,7 +164,7 @@ def _induced_sort(S, is_typeS, LMS, bin_seg_left, bin_seg_right, step1_normal_or
   
   return pre_sa
   
-def _sa_log(S): # O(N(logN)^2)の解法。 N < 10^4 のときはこちらを使う
+def _sa_log(S): # O(N(logN)^2)の解法。 サイズの小さいときはこちらを使う
   if isinstance(S, str):
     S = [ord(s) for s in S]
   S_max = max(S)
@@ -205,3 +208,30 @@ def _sa_log(S): # O(N(logN)^2)の解法。 N < 10^4 のときはこちらを使�
     else: interval <<= 1
   
   return [inv(info)[2] for info in to_be_sorted]
+
+def lcp_array(S, sa):
+  # 高さ配列 (i番目の要素がS[sa[i]..n) と S[sa[i+1]..n)の最長共通接頭辞の長さ)
+  # 入力: S 文字列/リスト, sa suffix array (!! 空文字列を含まない !!)
+  N = len(S)
+  
+  inv_sa = [0]*N
+  
+  for i, a in enumerate(sa):
+    inv_sa[a] = i
+  
+  ans = [0]*N
+  tmp_ans = 0
+  common_len = 0
+  for i in range(N):
+    if inv_sa[i] == N-1: continue
+    i_next_on_sa = sa[inv_sa[i] + 1]
+    
+    while common_len < N-i and S[i+common_len] == S[i_next_on_sa+common_len]:
+      common_len += 1  
+    ans[inv_sa[i]] = common_len
+    
+    if common_len > 0:
+      common_len -= 1
+    
+  return ans
+
