@@ -98,7 +98,7 @@ class maxflow:
     return ans
 
   def flow(self, s, t, flow_limit = 10**20): # sからtへの最大流量を計算、O(V^2 E)　(flow_limit: 流量上限)
-    if self.start != s or self.tarminal != t:
+    if self.start != s or self.terminal != t:
       self.reset()
       self.start = s; self.terminal = t;
     bfs = self._bfs
