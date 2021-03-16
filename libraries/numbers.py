@@ -5,6 +5,7 @@ _inv_t = {}
 _inv_t[1] = 1
 _inv_t[0] = 0
 def inv(x, mod):
+  x %= mod
   if x not in _inv_t:
     _inv_t[x] = inv(mod % x, mod) * (mod - mod // x) % mod
   return _inv_t[x]
