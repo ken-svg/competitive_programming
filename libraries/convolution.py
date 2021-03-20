@@ -152,3 +152,22 @@ def convolution(A, B, mods = [998244353], roots = [15311432]): # 配列AとBの�
   return AB_ans
 
 # 使用例： https://atcoder.jp/contests/atc001/submissions/20033938
+
+
+
+# NTTほどの精度が必要ないときは、以下の方が高速。この関数のみ貼り付ければ良い。
+# Pythonで提出すること！！！(PyPyにはNumpyが存在しない)
+import numpy
+def convolution_int(A, B):
+  A = np.array(A)
+  B = np.array(B)
+  size = len(A) + len(B) - 1
+  size = 1 << (size-1).bit_length()
+  FA = np.fft.rfft(A, size)
+  FB = np.fft.rfft(B, size)
+  FC = FA * FB
+  C = np.fft.irfft(FC, size)
+  
+  # 整数に丸める
+  return np.rint(C).astype(np.int64)
+
