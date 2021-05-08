@@ -1,6 +1,6 @@
 # Dijkstra法(グラフが隣接リストで与えられる場合)
 from heapq import heappush, heappop
-# s: 始点, I: 隣接リスト -> cost: sから各点の距離(リスト)
+# s: 始点, I: 隣接リスト I[p]の要素は(隣接点q, コストc) -> cost: sから各点の距離(リスト)
 def Dijkstra(s, I):
   INF = 10**30
   task = [(0, s)]
