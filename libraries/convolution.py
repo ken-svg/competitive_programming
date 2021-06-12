@@ -53,26 +53,24 @@ def _Number_Theorem_transformation(A, mod, root, inv = False):
   idx = 1
   while section <= N:
     # １段ごとの操作
-    base = 0 # ブロックのはじめ
     half = section >> 1 # ブロックの真ん中
     r = R[idx] # 現在の段における根
-    factor = 1 # 加算時の第２項の係数
-    S_next = []
-    
-    for i in range(N):
-      S_next.append((S[base + (i % half)] + factor * S[base + half + (i % half)]) % mod)
-      # ↑バタフライ演算の本体
       
-      # 更新処理
-      factor *= r # 係数更新
-      factor %= mod
-      if i == base + section - 1: #次のブロックへ
-        base += section
+    for base in range(0, N, section):
+      factor = 1 # 加算時の第２項の係数
+      for i in range(half):
+        u = S[base + (i % half)]
+        v = S[base + half + (i % half)]
+        S[base + (i % half)] = (u + factor * v) % mod
+        S[base + half + (i % half)] = (u - factor * v) % mod
+        # ↑バタフライ演算の本体
+        
+        # 係数更新
+        factor *= r
+        factor %= mod
+         
     section <<= 1 #1ブロックサイズを倍に
-    del S
-    S = S_next
     idx += 1
-  
   return S
 
 # 拡張ユークリッド互除法 (詳細はnumbersへ)
