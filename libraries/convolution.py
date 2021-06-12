@@ -157,7 +157,7 @@ def convolution(A, B, mods = [998244353], roots = [15311432]): # 配列AとBの�
 
 # NTTほどの精度が必要ないときは、以下の方が高速。この関数のみ貼り付ければ良い。
 # Pythonで提出すること！！！(PyPyにはNumpyが存在しない)
-import numpy
+import numpy as np
 def convolution_int(A, B):
   A = np.array(A)
   B = np.array(B)
