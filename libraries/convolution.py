@@ -2,7 +2,6 @@
 # 1,convolutionを行うには、以下を全て貼り付けること
 # 2,より高精度（値が大きい場合）な計算のため、オプション値roots, modsをいろいろ試すこと
 
-# 数論変換（フーリエ変換の有限体上での実装）
 def _Number_Theorem_transformation(A, mod, root, inv = False):
   # 配列Aを最小の２べきに拡張(0fill)したもののフーリエ変換を、素数modを法とする有限体上で求める。
   # inv: Trueなら逆変換, mod:素数の法, root: 原始根
@@ -56,18 +55,16 @@ def _Number_Theorem_transformation(A, mod, root, inv = False):
     half = section >> 1 # ブロックの真ん中
     r = R[idx] # 現在の段における根
       
+    factors = [1] # 加算時の第２項の係数
+    for i in range(1,half):
+      factors.append(factors[-1] * r % mod)
+      
     for base in range(0, N, section):
-      factor = 1 # 加算時の第２項の係数
       for i in range(half):
-        u = S[base + (i % half)]
-        v = S[base + half + (i % half)]
-        S[base + (i % half)] = (u + factor * v) % mod
-        S[base + half + (i % half)] = (u - factor * v) % mod
+        il = base + i
+        ir = il + half
+        S[il], S[ir] = (S[il] + factors[i] * S[ir]) % mod, (S[il] - factors[i] * S[ir]) % mod
         # ↑バタフライ演算の本体
-        
-        # 係数更新
-        factor *= r
-        factor %= mod
          
     section <<= 1 #1ブロックサイズを倍に
     idx += 1
