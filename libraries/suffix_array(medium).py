@@ -9,7 +9,7 @@ def suffix_array(S):
   #    [S[sa[i]:N-1] for i in range(N)]が辞書式順序で昇順となる
   
   # SA-IS法
-  # O(NlogN + K) where N = len(S), K = 文字種列or最大値-最小値
+  # O(N + K) where N = len(S), K = 文字種列or最大値-最小値
   
   if len(S) < 10: # サイズの小さい場合はO(N(logN)^2)を使う
     return _sa_log(S)  
@@ -27,7 +27,7 @@ def suffix_array(S):
   type_info = []
   bin_info = []
   
-  #induced sort-1(wrong sort)
+  #induced sort-1(tentative sort)
   while len(S) > 1:
     N = len(S)
     
