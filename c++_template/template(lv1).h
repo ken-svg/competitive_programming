@@ -4,7 +4,7 @@ using namespace std;
 typedef long long int ll;
 typedef long unsigned int ls_int;
 
-# print list
+// 1, print list
 void print(vector<ll> S){
   cout << "["; 
   for(ls_int i = 0; i < S.size(); i++){
@@ -46,7 +46,30 @@ void print(vector<string> S){
   cout << "]" <<  endl;
 }
 
-# sum of S[l, r)
+// 2, input list
+void input(vector<int> &S, int N){
+  int a;
+  for (int i = 1; i <= N; i++){
+    cin >> a;
+    S.push_back(a);
+  }
+}
+void input(vector<ll> &S, int N){
+  ll a;
+  for (int i = 1; i <= N; i++){
+    cin >> a;
+    S.push_back(a);
+  }
+}
+void input(vector<float> &S, int N){
+  float a;
+  for (int i = 1; i <= N; i++){
+    cin >> a;
+    S.push_back(a);
+  }
+}
+
+// 3, sum of S[l, r)
 int sum(vector<int> S, int l = 0, int r = -1){ /* sum of S[l, r) */
   int ans = 0;
   if (r == -1){
@@ -72,14 +95,27 @@ float sum(vector<float> S, int l = 0, int r = -1){ /* sum of S[l, r) */
   if (r == -1){
     r = S.size();
   }
-  for (ls_int _ = ls_int(l); _ < ls_int(r); _++){https://github.com/ken-svg/competitive_programming
+  for (ls_int _ = ls_int(l); _ < ls_int(r); _++){
       ans += S[_];
   }
   return ans;
 }
 
-# main function
+// *** main function ***
 int main(){
+  cin.tie(nullptr);
+  ios_base::sync_with_stdio(false);
+  cout << fixed << setprecision(16);
+  
+  // from here ...
+  
+  int N;
+  cin >> N;
+  vector<ll> A;
+  input(A, N);
+  
+  
+  
   
   
 }
