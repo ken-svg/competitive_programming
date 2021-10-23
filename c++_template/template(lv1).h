@@ -3,8 +3,9 @@
 using namespace std;
 typedef long long int ll;
 typedef long unsigned int ls_int;
+#define heapq priority_queue
 
-// 1, print list
+// 1-1, print list
 void print(vector<ll> S){
   cout << "["; 
   for(ls_int i = 0; i < S.size(); i++){
@@ -45,6 +46,78 @@ void print(vector<string> S){
   }
   cout << "]" <<  endl;
 }
+
+
+// 1-2, print matrix
+void print(vector<vector<int>> S){
+  cout << "["; 
+  for(ls_int i = 0; i < S.size(); i++){
+    cout << "["; 
+    for(ls_int j = 0; j < S.at(i).size(); j++){
+      cout << S.at(i).at(j);
+      if (j < S.at(i).size() - 1){
+        cout << ", ";
+      } 
+    }
+    cout << "]";
+    if (i < S.size() - 1){
+      cout << ", ";
+    }
+  }
+  cout << "]" <<  endl;
+}
+void print(vector<vector<ll>> S){
+  cout << "["; 
+  for(ls_int i = 0; i < S.size(); i++){
+    cout << "["; 
+    for(ls_int j = 0; j < S.at(i).size(); j++){
+      cout << S.at(i).at(j);
+      if (j < S.at(i).size() - 1){
+        cout << ", ";
+      } 
+    }
+    cout << "]";
+    if (i < S.size() - 1){
+      cout << ", ";
+    }
+  }
+  cout << "]" <<  endl;
+}
+void print(vector<vector<float>> S){
+  cout << "["; 
+  for(ls_int i = 0; i < S.size(); i++){
+    cout << "["; 
+    for(ls_int j = 0; j < S.at(i).size(); j++){
+      cout << S.at(i).at(j);
+      if (j < S.at(i).size() - 1){
+        cout << ", ";
+      } 
+    }
+    cout << "]";
+    if (i < S.size() - 1){
+      cout << ", ";
+    }
+  }
+  cout << "]" <<  endl;
+}
+void print(vector<vector<string>> S){
+  cout << "["; 
+  for(ls_int i = 0; i < S.size(); i++){
+    cout << "["; 
+    for(ls_int j = 0; j < S.at(i).size(); j++){
+      cout << S.at(i).at(j);
+      if (j < S.at(i).size() - 1){
+        cout << ", ";
+      } 
+    }
+    cout << "]";
+    if (i < S.size() - 1){
+      cout << ", ";
+    }
+  }
+  cout << "]" <<  endl;
+}
+
 
 // 2, input list
 void input(vector<int> &S, int N){
@@ -107,15 +180,10 @@ int main(){
   ios_base::sync_with_stdio(false);
   cout << fixed << setprecision(16);
   
-  // from here ...
+  // *** update from here ***
   
-  int N;
-  cin >> N;
-  vector<ll> A;
-  input(A, N);
-  
-  
-  
+  int N, M;
+  cin >> N >> M;
   
   
 }
