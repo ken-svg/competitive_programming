@@ -161,3 +161,266 @@ class ordered_set():
       elif prh == plh: # 高さが変わらないなら終了
         break
       
+
+# Sorted setを平方分割と立方分割で実装。後者は遅くて使い物にならない。
+# https://atcoder.jp/contests/abc217/submissions/28667455
+import math
+from bisect import bisect_left, bisect_right
+REBUILD_RATIO_UPPER = 500
+REBUILD_RATIO_LOWER = 0.1
+class SortedSet_1():
+  def __init__(self, A):
+    self.n = len(A)
+    self.sqrt_n = math.floor(math.sqrt(self.n)+10**(-10))
+    self.A = A
+    self.construct()
+    
+  def __len__(self):
+    A = self.A
+    if isinstance(A[0], list):
+      return sum([len(a) for a in A])
+    else:
+      return len(A)
+    
+  def __iter__(self):
+    for A1 in self.A:
+      for a in A1:
+        yield a
+    
+  def __min__(self):
+    return self.A[0][0]
+  
+  def __max__(self):
+    return self.A[-1][-1]
+  
+  #def __print__(self):
+  #  print(self.A)
+    
+  def construct(self):
+    A = self.A
+    if isinstance(A[0], list):
+      A_new = []
+      for a in A:
+        A_new.extend(a)
+      A = A_new
+ 
+    n = self.n
+    sqrt_n = self.sqrt_n
+    A_new = []
+    self.A = A = [A[v//sqrt_n : (v + n)//sqrt_n] for v in range(0, n * sqrt_n, n)]
+    self.A_top = [A1[0] for A1 in A] 
+    self.A_bottom = [A1[-1] for A1 in A] 
+ 
+  def add(self, x):
+    A = self.A
+    A_top = self.A_top
+    A_bottom = self.A_bottom
+    
+    # insert
+    i1 = max(0, bisect_right(A_top, x) - 1)
+    A1 = A[i1]
+    i2 = bisect_left(A1, x)
+    A1.insert(i2, x)
+    
+    self.n += 1
+    if pow(self.sqrt_n + 1, 2) == self.n:
+      self.sqrt_n += 1
+ 
+    # check valance condition
+    if len(A1) >= (self.sqrt_n * REBUILD_RATIO_UPPER): 
+      # if the valance condition is not satisfied, reconstruct A 
+      self.construct()
+      return
+ 
+    # update A_top and A_bottom
+    A_top[i1] = A1[0]
+    A_bottom[i1] = A1[-1]
+ 
+  def remove(self, x, remove_all=False):
+    A = self.A
+    A_top = self.A_top
+    A_bottom = self.A_bottom
+    
+    # delete
+    i1 = bisect_right(A_top, x) - 1
+    if i1 == -1: return False
+    A1 = A[i1]
+    i2 = bisect_left(A1, x)
+    if i2 == len(A1) or A1[i2] != x: return False
+    A1.pop(i2)
+ 
+    self.n -= 1
+    if pow(self.sqrt_n, 2) > self.n:
+      self.sqrt_n -= 1  
+ 
+    # check valance condition
+    if len(A1) <= (self.sqrt_n * REBUILD_RATIO_LOWER): 
+      # if the valance condition is not satisfied, reconstruct A 
+      self.construct()
+      return True
+ 
+    # update A_top and A_bottom
+    A_top[i1] = A1[0]
+    A_bottom[i1] = A1[-1]
+    return True
+ 
+ 
+  def gt(self, x):
+    A = self.A
+    A_bottom = self.A_bottom
+    i1 = bisect_right(A_bottom, x)
+    if i1 == len(A_bottom): return None # No element is greater than x
+    A1 = A[i1]
+    i2 = bisect_right(A1, x)
+    return A1[i2]
+ 
+  def ge(self, x):
+    A = self.A
+    A_bottom = self.A_bottom
+    i1 = bisect_left(A_bottom, x)
+    if i1 == len(A_bottom): return None # No element is greater than x or equal to x
+    A1 = A[i1]
+    i2 = bisect_left(A1, x)
+    return A1[i2]
+ 
+  def lt(self, x):
+    A = self.A
+    A_top = self.A_top
+    i1 = bisect_left(A_top, x) - 1
+    if i1 == -1: return None # No element is less than x
+    A1 = A[i1]
+    i2 = bisect_left(A1, x) - 1
+    return A1[i2]
+ 
+  def le(self, x):
+    A = self.A
+    A_top = self.A_top
+    i1 = bisect_right(A_top, x) - 1
+    if i1 == len(A_top): return None # No element is less than x or equal to x
+    A1 = A[i1]
+    i2 = bisect_right(A1, x) - 1
+    return A1[i2]
+ 
+class SortedSet_2():
+  def __init__(self, A):
+    self.n = len(A)
+    self.cbrt_n = math.floor(pow(self.n, 1./3.)+10**(-10))
+    self.A = [A]
+    self.construct()
+    
+  def __len__(self):
+    A = self.A
+    return sum([len(a) for a in A])
+  
+  def __iter__(self):
+    for A1 in self.A:
+      for a in A1:
+        yield a
+    
+  def __min__(self):
+    return min(self.A[0])
+  
+  def __max__(self):
+    return max(self.A[-1])
+  
+  #def __print__(self):
+  #  print([A1 for A1 in A])
+    
+  def construct(self):
+    A = self.A
+    A_new = []
+    for A1 in A:
+      for a in A1:
+        A_new.append(a)
+    A = A_new
+ 
+    n = self.n
+    cbrt_n = self.cbrt_n
+    A_new = []
+    self.A = A = [SortedSet_1(A[v//cbrt_n : (v + n)//cbrt_n]) for v in range(0, n * cbrt_n, n)]
+    self.A_top = [min(A1) for A1 in A] 
+    self.A_bottom = [max(A1) for A1 in A] 
+ 
+  def add(self, x):
+    A = self.A
+    A_top = self.A_top
+    A_bottom = self.A_bottom
+    
+    # insert
+    i1 = max(0, bisect_right(A_top, x) - 1)
+    A1 = A[i1]
+    A1.add(x)
+    
+    self.n += 1
+    if pow(self.cbrt_n + 1, 3) == self.n:
+      self.cbrt_n += 1
+ 
+    # check valance condition
+    if len(A1) >= (self.cbrt_n * REBUILD_RATIO_UPPER): 
+      # if the valance condition is not satisfied, reconstruct A 
+      self.construct()
+      return
+ 
+    # update A_top and A_bottom
+    A_top[i1] = min(A1)
+    A_bottom[i1] = max(A1)
+ 
+  def remove(self, x, remove_all=False):
+    A = self.A
+    A_top = self.A_top
+    A_bottom = self.A_bottom
+    
+    # delete
+    i1 = bisect_right(A_top, x) - 1
+    if i1 == -1: return False
+    A1 = A[i1]
+    flag = A1.remove(x)
+    if not flag: return False
+ 
+    self.n -= 1
+    if pow(self.cbrt_n, 3) > self.n:
+      self.cbrt_n -= 1  
+ 
+    # check valance condition
+    if len(A1) <= (self.cbrt_n * REBUILD_RATIO_LOWER): 
+      # if the valance condition is not satisfied, reconstruct A 
+      self.construct()
+      return True
+ 
+    # update A_top and A_bottom
+    A_top[i1] = min(A1)
+    A_bottom[i1] = max(A1)
+    return True
+ 
+ 
+  def gt(self, x):
+    A = self.A
+    A_bottom = self.A_bottom
+    i1 = bisect_right(A_bottom, x)
+    if i1 == len(A_bottom): return None # No element is greater than x
+    A1 = A[i1]
+    return A1.gt(x)
+ 
+  def ge(self, x):
+    A = self.A
+    A_bottom = self.A_bottom
+    i1 = bisect_left(A_bottom, x)
+    if i1 == len(A_bottom): return None # No element is greater than x or equal to x
+    A1 = A[i1]
+    return A1.ge(x)
+ 
+  def lt(self, x):
+    A = self.A
+    A_top = self.A_top
+    i1 = bisect_left(A_top, x) - 1
+    if i1 == -1: return None # No element is less than x
+    A1 = A[i1]
+    return A1.lt(x)
+ 
+  def le(self, x):
+    A = self.A
+    A_top = self.A_top
+    i1 = bisect_right(A_top, x) - 1
+    if i1 == len(A_top): return None # No element is less than x or equal to x
+    A1 = A[i1]
+    return A1.le(x)
