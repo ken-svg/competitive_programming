@@ -166,10 +166,13 @@ class ordered_set():
 # https://atcoder.jp/contests/abc217/submissions/28667455
 import math
 from bisect import bisect_left, bisect_right
-REBUILD_RATIO_UPPER = 500
-REBUILD_RATIO_LOWER = 0.1
+REBUILD_RATIO_UPPER = 100
+REBUILD_RATIO_LOWER = 0.00001
 class SortedSet_1():
   def __init__(self, A):
+    self.REBUILD_RATIO_UPPER = 10
+    self.REBUILD_RATIO_LOWER = 0.00001
+    self.BACKET_RATIO = 3
     self.n = len(A)
     self.sqrt_n = math.floor(math.sqrt(self.n)+10**(-10))
     self.A = A
@@ -198,16 +201,20 @@ class SortedSet_1():
     
   def construct(self):
     A = self.A
+    n = self.n
+    sqrt_n = self.sqrt_n
+    
     if isinstance(A[0], list):
       A_new = []
       for a in A:
         A_new.extend(a)
       A = A_new
- 
-    n = self.n
-    sqrt_n = self.sqrt_n
+      
     A_new = []
-    self.A = A = [A[v//sqrt_n : (v + n)//sqrt_n] for v in range(0, n * sqrt_n, n)]
+    tmp = []
+    backet_number = max(1, sqrt_n // self.BACKET_RATIO)
+    self.A = A = [A[v//backet_number : (v + n)//backet_number] for v in range(0, n * backet_number, n)]
+    #print(self.A)
     self.A_top = [A1[0] for A1 in A] 
     self.A_bottom = [A1[-1] for A1 in A] 
  
@@ -219,15 +226,14 @@ class SortedSet_1():
     # insert
     i1 = max(0, bisect_right(A_top, x) - 1)
     A1 = A[i1]
-    i2 = bisect_left(A1, x)
-    A1.insert(i2, x)
+    A1.insert(bisect_left(A1, x), x)
     
     self.n += 1
     if pow(self.sqrt_n + 1, 2) == self.n:
       self.sqrt_n += 1
  
     # check valance condition
-    if len(A1) >= (self.sqrt_n * REBUILD_RATIO_UPPER): 
+    if len(A1) >= (self.sqrt_n * self.REBUILD_RATIO_UPPER): 
       # if the valance condition is not satisfied, reconstruct A 
       self.construct()
       return
@@ -254,7 +260,7 @@ class SortedSet_1():
       self.sqrt_n -= 1  
  
     # check valance condition
-    if len(A1) <= (self.sqrt_n * REBUILD_RATIO_LOWER): 
+    if len(A1) <= (self.sqrt_n * self.REBUILD_RATIO_LOWER): 
       # if the valance condition is not satisfied, reconstruct A 
       self.construct()
       return True
@@ -267,30 +273,25 @@ class SortedSet_1():
  
   def gt(self, x):
     A = self.A
-    A_bottom = self.A_bottom
-    i1 = bisect_right(A_bottom, x)
-    if i1 == len(A_bottom): return None # No element is greater than x
+    i1 = bisect_right(self.A_bottom, x)
+    if i1 == -1: return None # No element is greater than x
     A1 = A[i1]
-    i2 = bisect_right(A1, x)
-    return A1[i2]
+    return A1[bisect_right(A1, x)]
  
   def ge(self, x):
     A = self.A
     A_bottom = self.A_bottom
-    i1 = bisect_left(A_bottom, x)
+    i1 = bisect_left(self.A_bottom, x)
     if i1 == len(A_bottom): return None # No element is greater than x or equal to x
     A1 = A[i1]
-    i2 = bisect_left(A1, x)
-    return A1[i2]
+    return A1[bisect_left(A1, x)]
  
   def lt(self, x):
     A = self.A
-    A_top = self.A_top
-    i1 = bisect_left(A_top, x) - 1
+    i1 = bisect_left(self.A_top, x) - 1
     if i1 == -1: return None # No element is less than x
     A1 = A[i1]
-    i2 = bisect_left(A1, x) - 1
-    return A1[i2]
+    return A1[bisect_left(A1, x) - 1]
  
   def le(self, x):
     A = self.A
@@ -298,8 +299,7 @@ class SortedSet_1():
     i1 = bisect_right(A_top, x) - 1
     if i1 == len(A_top): return None # No element is less than x or equal to x
     A1 = A[i1]
-    i2 = bisect_right(A1, x) - 1
-    return A1[i2]
+    return A1[bisect_right(A1, x) - 1]
  
 class SortedSet_2():
   def __init__(self, A):
@@ -356,7 +356,7 @@ class SortedSet_2():
       self.cbrt_n += 1
  
     # check valance condition
-    if len(A1) >= (self.cbrt_n * REBUILD_RATIO_UPPER): 
+    if len(A1) >= (self.cbrt_n **2 * REBUILD_RATIO_UPPER): 
       # if the valance condition is not satisfied, reconstruct A 
       self.construct()
       return
@@ -382,7 +382,7 @@ class SortedSet_2():
       self.cbrt_n -= 1  
  
     # check valance condition
-    if len(A1) <= (self.cbrt_n * REBUILD_RATIO_LOWER): 
+    if len(A1) <= (self.cbrt_n **2 * REBUILD_RATIO_LOWER): 
       # if the valance condition is not satisfied, reconstruct A 
       self.construct()
       return True
