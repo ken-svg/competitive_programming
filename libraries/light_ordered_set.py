@@ -54,7 +54,7 @@ class light_ordered_set():
   """ キーの予告のサイズをSとして、構築：O(SlogS)　検索：O(logS) """
   """ !!! キーがint型以外の場合は78, 79行目をいじること !!! """
   
-  def __init__(self, N): ＃構築
+  def __init__(self, N): # 構築
     if isinstance(N, int):
       A = list(range(N))
     else:
