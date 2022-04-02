@@ -1,8 +1,8 @@
 # 角度付きの点 arg: 偏角(double),  
 # 偏角ソート時の大小比較に使用する。
 # クラスの生成と扱いにより、点の数が2*10**5程度であれば間に合う。10**6程度となると間に合わない(PyPy)。
-# 間に合う： https://atcoder.jp/contests/abc225/submissions/26977627
-# 間に合わない： https://atcoder.jp/contests/typical90/submissions/26978564
+# 間に合う：　https://atcoder.jp/contests/abc225/submissions/26978638
+# 間に合わない：　https://atcoder.jp/contests/typical90/submissions/26978564
 
 import math
 atan2 = math.atan2
