@@ -29,18 +29,21 @@ class mincostflow():
     # 始点sから各点への最短路を計算し、めいいっぱいフローを流す
     G = self.G
     pot = self.potential # ポテンシャル
-    INF = 1<<60
+    INF = self.edge_num * 3 + self.n
     
     dist = [-1]*self.n # 各点までの距離
     path = [None]*self.n # 各点の直前に通るべき辺の番号
     
     task = [s] # heapq
     vis = [False]*self.n # すでに最短距離が確定した場合 True
+    e_id_dic = {}
+    e_id_dic[s] = -1
     while task:
       x = heappop(task)
       
-      y, fr = x // INF, x % INF
-      c, e_id = y // INF, y % INF
+      c, fr = x // INF, x % INF
+      e_id = e_id_dic[x]
+      #c, e_id = y // INF, y % INF
       
       if vis[fr]: continue
       path[fr] = e_id
@@ -50,7 +53,8 @@ class mincostflow():
       for cap, cost, to, _, e_id in G[fr]:
         if vis[to] or cap == 0: continue
         c_next = c + cost - (pot[to] - pot[fr])
-        heappush(task, (c_next * INF + e_id) * INF + to)
+        heappush(task, c_next * INF + to)
+        e_id_dic[c_next * INF + to] = e_id
       
     # ポテンシャルの更新
     for i in range(self.n):
@@ -94,7 +98,7 @@ class mincostflow():
         
   def min_cost_slope(self, s, t, flow_limit = 1<<60):
     self.potential = [0]*self.n
-    self.reset()
+    #self.reset()
     
     ans = [[0,0]]
     flow, cost = 0, 0
@@ -121,8 +125,7 @@ class mincostflow():
       now_flow, _, fr, _, _ = rev_edge
       ans[e_id>>1] = {"cap": cap, "flow": now_flow, "from": fr, "to": to, "cost": cost}
     return ans
-    
-    
+  
 # method 一覧
 # def add_edge(fr, to, cap, cost, cap_rev = 0): frからtoへ容量cap, コストcostの辺を張る。cap_revは逆辺の初期容量。
 # def reset(): # 全ての辺を残したまま、流量をリセットする
