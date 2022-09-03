@@ -17,3 +17,16 @@ def Zalgorithm(S):
     j = max(0, j - sft)
   
   return ans
+
+
+def prefix_function(S): # S[0:i]の接尾辞と接頭辞の一致数のうち、非自明なものの最大
+  N = len(S)
+  i, j = 1, 0
+  prefix = [0] * N
+  for i in range(1, N):
+    while j > 0 and S[i] != S[j]:
+      j = prefix[j-1]
+    if S[i] == S[j]:
+      j += 1
+    prefix[i] = j
+  return prefix
