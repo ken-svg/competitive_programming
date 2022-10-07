@@ -5,6 +5,7 @@ class mincostflow():
     self.n = n
     self.edge_num = 0
     self.edges = []
+    self.name = [str(i) for i in range(n)]
     self.G = [[] for i in range(n)]
     
   def add_edge(self, fr, to, cap, cost, cap_rev = 0): # 辺を追加
@@ -126,6 +127,16 @@ class mincostflow():
       ans[e_id>>1] = {"cap": cap, "flow": now_flow, "from": fr, "to": to, "cost": cost}
     return ans
   
+  def print_edges(self, low_lim = 0):
+    for cap, cost, to, rev_edge, e_id in self.edges[::2]:
+      now_flow, _, fr, _, _ = rev_edge
+      if now_flow < low_lim: continue
+      print(self.name[fr] + " -> " + self.name[to] + " : flow " + str(now_flow) + " / " + str(cap + now_flow) + "  (cost " + str(cost) + ")")
+      
+  def name_vertice(self, v, name):
+    self.name[v] = name 
+      
+  
 # method 一覧
 # def add_edge(fr, to, cap, cost, cap_rev = 0): frからtoへ容量cap, コストcostの辺を張る。cap_revは逆辺の初期容量。
 # def reset(): # 全ての辺を残したまま、流量をリセットする
@@ -133,3 +144,7 @@ class mincostflow():
 # def min_cost_slope(s, t, flow_limit = 1<<60): sからtまでフローを流し、各流量における最小コストを返す（内部のフローは最大フローとなる）
 # get_edge(edge_idx): 辺番号edge_idxの辺の状態を返す。{"cap": 残り容量, "flow": 現在流量, "from": 始点, "to": 終点, "cost": 辺のコスト}の辞書を返す。
 # get_edges(): 全ての辺について、上記形式の辞書を返す。
+# print_edges(low_lim = 0): 流量がlow_lim以上の辺を全て表示。点に名前がついている場合、その名前で表示。
+# name_vertice(v, name): 点vに名前nameをつける。
+
+
