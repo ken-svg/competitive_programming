@@ -43,6 +43,17 @@ def inv_mal(P):
     
   return Q
 
+mod = 998244353
+# mod = 素数
+_inv_t = {}
+_inv_t[1] = 1
+_inv_t[0] = 0
+def inv(x, mod):
+  x %= mod
+  if x not in _inv_t:
+    _inv_t[x] = inv(mod % x, mod) * (mod - mod // x) % mod
+  return _inv_t[x]
+
 def inv_mal_mod(P, mod): # modありの逆行列を求める。inv(x, mod)をnumbersからインポートすること
   a = len(P)
   Q = [[int(i == j) for j in range(a)] for i in range(a)]
