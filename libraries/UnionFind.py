@@ -1,5 +1,5 @@
 class UnionFind():
-  def __init__(self, n, weighted = False):
+  def __init__(self, n):
     self.parent = [-1]*n # 親頂点（親頂点に対してはサイズの符号反転）
     self.rank = [0]*n # 深さ（の上限）
     
