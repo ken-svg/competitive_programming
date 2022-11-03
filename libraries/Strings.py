@@ -1,32 +1,40 @@
-def Zalgorithm(S):
-  # S と S[i:|S|-1] の最長共通接頭辞の長さを求める
-  N = len(S)
-  i = 1
-  j = 0
-  ans = [0] * N
-  ans[0] = N
-  while i < N:
-    while i + j < N and S[i+j] == S[j]:
-      j += 1
-    ans[i] = j
-    sft = 1
-    while i + sft < N and ans[sft] < j - sft:
-      ans[i+sft] = ans[sft]
-      sft += 1
-    i += sft
-    j = max(0, j - sft)
+def Z_algorythm(S):
+  # SとS[j:]の共通接頭辞長さを求める
+  A = [0] * len(S)
+ 
+  back = 1
+  step = 0
+  while len(S) > back:
+    while len(S) > back + step and S[step] == S[back + step]: 
+      step += 1
+    A[back] = step
+    
+    if step == 0: 
+      back += 1
+      step = 0
+      continue
+    
+    for dif in range(1, step+1):
+      if dif == step or A[dif] >= step - dif: 
+        back = back + dif
+        step = step - dif
+        break
+      A[back + dif] = A[dif]
   
-  return ans
+  A[0] = -1
+  return A
 
 
-def prefix_function(S): # S[0:i]の接尾辞と接頭辞の一致数のうち、非自明なものの最大
-  N = len(S)
-  i, j = 1, 0
-  prefix = [0] * N
-  for i in range(1, N):
-    while j > 0 and S[i] != S[j]:
-      j = prefix[j-1]
-    if S[i] == S[j]:
-      j += 1
-    prefix[i] = j
-  return prefix
+def MP_algorythm(S):
+  # S[:j]の接頭辞と接尾辞が一致するものの最長長さを求める（完全一致を除く）
+  A = [0] * len(S)
+  step = 0
+  for now in range(1, len(S)):
+    while step > 0 and S[now] != S[step]:
+      step = A[step-1]
+    if S[now] == S[step]:
+      A[now] = step = step + 1
+    else:
+      A[now] = step = 0
+      
+  return A
