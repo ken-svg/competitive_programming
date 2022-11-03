@@ -1,4 +1,4 @@
-def Z_algorythm(S):
+def Z_algorithm(S):
   # SとS[j:]の共通接頭辞長さを求める
   A = [0] * len(S)
  
@@ -25,7 +25,7 @@ def Z_algorythm(S):
   return A
 
 
-def MP_algorythm(S):
+def MP_algorithm(S):
   # S[:j]の接頭辞と接尾辞が一致するものの最長長さを求める（完全一致を除く）
   A = [0] * len(S)
   step = 0
