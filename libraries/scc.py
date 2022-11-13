@@ -87,28 +87,29 @@ def strongly_connected_component(I):
 
 
 # おまけ(トポロジカルソート)
-# !!verify前!!
-def topological_sort(I): # 入力  I: 隣接リスト(DAG),  出力: top_order(list[int]) 
+from collections import deque
+def topological_order(I):
   N = len(I)
-  in_deg = [0]*N # 入次数
-  for i in range(N):
-    for j in I[i]:
-      in_deg[j] += 1
-  print(in_deg)
-  top_order = []
-  vis = [False]*N
+  task = deque([])
+  vis = [False] * N 
+  indeg = [0] * ct
   for s in range(N):
-    if vis[s] or in_deg[s] > 0: continue
-    task = [s]
-    vis[s] = True
-    while task:
-      i = task.pop()
-      top_order.append(i)
-      for j in I[i]: # 各出辺について
-        if vis[j]: continue
-        in_deg[j] -= 1 # 辺を取り除く
-        if in_deg[j] > 0: continue # 入次数が残っているなら後回し
-        vis[j] = True
-        task.append(j)
-        
-  return top_order
+    for p in I[s]:
+      indeg[p] += 1
+  for s in range(N):
+    if indeg[s] == 0:
+      task.append(s)
+      vis[s] = True
+  
+  ans_order = []
+  while task:
+    p = task.popleft()
+    ans_order.append(p)
+    for q in I[p]:
+      if vis[q]: continue
+      indeg[q] -= 1
+      if indeg[q] == 0:
+        task.append(q)
+        vis[q] = True
+  
+  return ans_order, (len(ans_order) == N) # DAGでない場合、二つ目の戻り値がFalseとなる
