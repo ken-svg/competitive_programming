@@ -153,9 +153,22 @@ class fps(): #形式的冪級数
       A_list[i] = a
     return A_list    
   def __mul__(self, other): # 乗算
+    precision = min(self.precision, other.precision)
+    head_sft = self.head + other.head
+    if len(self.A) < 16 or len(other.A) < 16:
+      A = self.A
+      B = other.A
+      C = {}
+      for a, v in A.items():
+        for b, w in B.items():
+          c = a + b
+          if c not in C:
+            C[c] = (v * w) % mod
+          else:
+            C[c] += (v * w) % mod
+      return fps(C, precision = precision, head_sft = head_sft)
     A_list = self._list_form(self.A)
     B_list = other._list_form(other.A)
-    head_sft = self.head + other.head
     precision = min(self.precision, other.precision)
     return fps(convolution([A_list[:precision], B_list[:precision]]), precision = precision, head_sft = head_sft)
   def __imul__(self, other):
@@ -175,15 +188,18 @@ class fps(): #形式的冪級数
       G += convolution([G, H])[:next_len-now_len]
       now_len = next_len
     return G
-  def inv(self):
+  def inv(self, max_precision = min(Deg_inf, 10**6), sparse_num = 50):
     if len(self.A) == 0:
       print("<fps : inv> Zero division!"); return;
+    if len(self.A) < sparse_num:
+      return self.__truediv__(1, self, max_precision = max_precision, sparse_num = sparse_num)
     A_list = self._list_form(self.A)
     head_sft = -self.head
-    precision = self.precision
+    precision = min(max_precision, self.precision)
     A_list_inv = self._inv_list(A_list, length = precision)
     return fps(A_list_inv, precision = precision, head_sft = head_sft)
-  def __truediv__(self, other):
+  def __truediv__(self, other, max_precision = min(Deg_inf, 10**6), sparse_num = 50):
+    # precision　は　10^6を限界としている
     if len(other.A) == 0:
       print("<fps : truediv> Zero division!"); return;
     if len(self.A) == 0:
@@ -191,11 +207,24 @@ class fps(): #形式的冪級数
     A_list = self._list_form(self.A)
     B_list = other._list_form(other.A)
     head_sft = self.head - other.head
-    precision = min(self.precision, other.precision)
+    precision = min(self.precision, other.precision, max_precision)
+    if len(other.A) < sparse_num:
+      R = A_list + [0] * max(0, precision - len(A_list))
+      if len(R) > precision: R = R[:precision]
+      B = other.A
+      b0_inv = inv(B[0], mod)
+      C = []
+      for i in range(precision):
+        v = (R[i] * b0_inv) % mod
+        C.append(v)
+        for j, w in B.items():
+          if i + j < precision:
+            R[i+j] = (R[i+j] - (v * w)) % mod
+      return fps(C, precision = precision, head_sft = head_sft)  
     B_list_inv = self._inv_list(B_list, length = precision)
     C = convolution([A_list[:precision], B_list_inv])
     return fps(C, precision = precision, head_sft = head_sft)
-  def __floordiv__(self, other):
+  def __floordiv__(self, other): 
     if len(other.A) == 0:
       print("<fps : floordiv> Zero division!"); return;
     precision = min(self.precision, other.precision)
@@ -252,14 +281,14 @@ class fps(): #形式的冪級数
         return self
     else:
       return fps(B, precision = self.precision - (head - (pre_head - 1)) if self.precision < Deg_inf else Deg_inf, head_sft = head)
-  def log(self):
+  def log(self): # 最小次数の項が「１」であること
     if self.head != 0:
       print("<fps : log> First term is not \"1\"! (coef * x^{})".format(self.head)); return;
     A = self.A
     if A[0] != 1:
       print("<fps : log> First term is not \"1\"! ({})".format(self.head)); return;
     return (self.differentiate() / self).integrate()
-  def exp(self):
+  def exp(self): # 定数項より次数の低い項を含まないこと
     if self.head < 0:
       print("<fps : exp> include negative power!"); return;
     if self.head == 0:
@@ -308,17 +337,52 @@ class fps(): #形式的冪級数
         rtn += ["{}*x^{} + ".format(a if a > 0 else "({})".format(a), i if i >= 0 else "({})".format(i))]
     rtn += ["O(x^{}))".format(self.precision if self.precision < Deg_inf else "inf")]
     return "".join(rtn)
+  def shift(self, step):
+    if step == 0:
+      return self
+    if self.head < 0:
+      print("<fps : shift> include negative power!"); return;
+    if self.precision < Deg_inf:
+      print("<fps : shift> precision is not inf of {}".format(self.precision)); return;
+    A_list = []
+    now_len = 0
+    for i, v in self.A.items():
+      j = i + self.head
+      if j > 10 ** 6:
+        print("<fps : shift> include too learge degree of {}".format(j)); return;
+      while now_len <= j:
+        A_list.append(now_len)
+        now_len += 1
+      A_list[j] = v
+    max_deg = len(A_list) - 1
+    factor = 1
+    for j in range(max_deg + 1):
+      A_list[j] = (A_list[j] * factor) % mod
+      factor = (factor * (j + 1)) % mod  
+    c = step
+    C = [1]
+    for j in range(1, max_deg + 1):
+      factor = (c * inv(j, mod)) % mod
+      C.append((C[-1] * factor) % mod)
+    D = convolution([A_list, C[::-1]])[max_deg:]
+    factor = 1
+    for i in range(len(D)):
+      D[i] = (D[i] * factor) % mod
+      factor = (factor * inv(i+1, mod)) % mod 
+    return fps(D)
   
-    
-# exaample
-a = fps(A, precision = 200000)
-b = fps(B, precision = 200000)
-print(a, b)
+# example
+A = [0, 1, 4]
+B = [1, 3, 3, 1]
+a = fps(A)
+b = fps(B)
 print(a + b, a - b)
-print(a / b * b)
-print(b.differentiate(inplace = False))
+print(a * b, a / b)
+print(a // b, a % b)
+print(a.differenciate())
 print(b.integrate())
 print(b.log())
-c = b.log()
-print(c.exp())
-print(c.exp() - b)
+print(a.exp())
+print(a.power(2), b.power(1000))
+print(b.shift(-1))
+
