@@ -1,6 +1,5 @@
 # SCC(強連結成分分解)
-
-def strongly_connected_component(I): 
+def strongly_connected_component(I, N): 
   # 入力  I: 隣接リスト
   # 出力　points: 各成分に含まれる点(list[list[int]]]), Ir: 成分間の隣接リスト(list[set[int]])
   N = len(I) # 頂点数
@@ -72,27 +71,22 @@ def strongly_connected_component(I):
       jr = reps_inv[rep[j]]
       if ir == jr: continue
       Ir[ir].add(jr) 
-  points = [[] for _ in range(Nr)]
+  points = [set() for _ in range(Nr)]
   for i in range(N):
-    points[reps_inv[rep[i]]].append(i)
+    points[reps_inv[rep[i]]].add(i)
+  points_inv = [-1] * N
+  for i, s in enumerate(points):
+    for j in s:
+      points_inv[j] = i
   
-  return points, Ir # 各成分に含まれる点(list[list[int]]]), 成分間の隣接リスト(list[set[int]])
-# 戻り値についての説明
-# points は、強連結成分ごとに、所属する点の番号を列挙したもの。強連結成分の順番や成分内の列挙の順番は保証しない。
-#  例)強連結成分が{0,3,4}, {1,5}, {2}なら、戻り値の一例は[[0,3,4], [1,5], [2]]。ただし、順序は逆転しうる。
-# Ir は、強連結成分間の隣接リストを示す。強連結成分の番号は、pointsにおける列挙順。
-#  例)強連結成分の隣接関係が{0,3,4}->{1,5}->{2}で、pointsとして[[0,3,4], [1,5], [2]]を返した場合、
-#  　　　　　Ir = [[1], [2], []]となる。（成分0->成分1, 成分1->成分2であり、成分2からは辺が出ていないことを、Ir[0]=[1], Ir[1]=[2], Ir[2]=[]となるリストIrとして表している。)
-#    　pointsにおける強連結成分の列挙順によって、同型なグラフでも、各強連結成分の番号の付け方が異なる場合のあることに注意。
+  return points, points_inv, Ir # 各成分に含まれる点(list[list[int]]]), 成分間の隣接リスト(list[set[int]])
 
-
-# おまけ(トポロジカルソート)
 from collections import deque
-def topological_order(I):
+def topological_sort(I):
   N = len(I)
   task = deque([])
   vis = [False] * N 
-  indeg = [0] * ct
+  indeg = [0] * N
   for s in range(N):
     for p in I[s]:
       indeg[p] += 1
@@ -111,5 +105,47 @@ def topological_order(I):
       if indeg[q] == 0:
         task.append(q)
         vis[q] = True
-  
   return ans_order, (len(ans_order) == N) # DAGでない場合、二つ目の戻り値がFalseとなる
+
+class Two_SAT(): # 2-SATを解く
+  def __init__(self):
+    self.n = 0
+    self.I = []
+    self.info = []
+    
+  def add(self, a, b, ta, tb): # (a != ta) -> (b == tb), (b != tb) -> (a == ta)
+    I = self.I
+    for _ in range((max(a, b) + 1) * 2 - len(self.I)):
+      I.append([])   
+    I[(b<<1) + (1 ^ int(tb))]
+    I[(a<<1) + (1 ^ int(ta))].append((b<<1) + int(tb))    
+    I[(b<<1) + (1 ^ int(tb))].append((a<<1) + int(ta))
+    if a > b or (a == b and int(ta) > int(tb)):
+      a, b = b, a
+      ta, tb = tb, ta
+      
+    self.info.append([(a, ta), (b, tb)])
+    self.n = len(I) // 2
+    
+  def derive(self): # 充足可能なら解の一つを返し、そうでにならNoneを返す
+    I = self.I
+    C, C_inv, Ir = strongly_connected_component(I, 2 * self.n)
+    for i in range(self.n):
+      if C_inv[i << 1] == C_inv[(i << 1) | 1]:
+        return None  
+    top_order_Ir = topological_sort(Ir)[0]
+    TF = [-1] * self.n
+    for comp_id in top_order_Ir:
+      a0 = list(C[comp_id])[0]
+      if TF[a0 >> 1] == -1:
+        for a in C[comp_id]:
+          TF[a >> 1] = (a & 1) ^ 1
+          
+    return [bool(tf) for tf in TF]
+  
+  def __str__(self):
+    rtn = "<Two SAT on X_0 ~ X_{}> \n".format((self.n) - 1)
+    self.info.sort()
+    for (a, ta), (b, tb) in self.info:
+      rtn += (" X_{}".format(a) if ta else "-X_{}".format(a)) + " ∨ " + (" X_{}".format(b) if tb else "-X_{}".format(b)) + "\n"
+    return rtn[:-1] 
