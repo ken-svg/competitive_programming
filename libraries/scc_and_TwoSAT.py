@@ -1,85 +1,57 @@
-# SCC(強連結成分分解)
-def strongly_connected_component(I, N): 
-  # 入力  I: 隣接リスト
-  # 出力　points: 各成分に含まれる点(list[list[int]]]), Ir: 成分間の隣接リスト(list[set[int]])
-  N = len(I) # 頂点数
-  
-  # 1, 帰りがけ順の作成(非再帰DFS) -> order(list[int])
+def strongly_connected_component(I, N):
+  vis = [False] * N
+  # 1. 帰りがけ順の作成
+  I_iter = [(i + [-2]).__iter__() for i in I]
   order = []
-  par = [-1]*N
-  next_task = [0 for _ in range(N)]
-  vis = [False]*N
   for s in range(N):
     if vis[s]: continue
-    task = [s]
-    p = s
     vis[s] = True
-    while p >= 0: # p = -1となるまで続ける
-      task_idx = next_task[p]
-      task_num = len(I[p])
-      while task_idx < task_num:
-        p_n = I[p][task_idx]
-        if not vis[p_n]:
-          break
-        task_idx += 1
-
-      if task_idx == task_num: # 全ての辺を調べ終わった時
-        order.append(p) # 順番に加える（=帰りがけ順）
-        p = par[p] # 親に戻る
-        continue
-
-      # そうでない時、p_nに進む
-      par[p_n] = p
-      vis[p_n] = True
-      next_task[p] = task_idx + 1 # 次回のため、次の辺を指しておく
-      p = p_n
-      
-  
-  # 2, 強連結成分への分解
-  rep = [-1]*N # 各成分の代表元
-  R = [[] for _ in range(N)] # 逆グラフの作成
+    path = [[I_iter[s], s]]
+    while path:
+      p = path[-1][1]
+      q = next(path[-1][0])
+      if q == -2: # その点から先へはいけない
+        order.append(p)
+        path.pop()
+      else:
+        if vis[q]: continue
+        path.append([I_iter[q], q])
+        vis[q] = True
+  # 2. 逆辺グラフ上で強連結成分を作成
+  # https://manabitimes.jp/math/1250
+  vis = [False] * N
+  R = [[] for _ in range(N)]
   for i in range(N):
     for j in I[i]:
       R[j].append(i)
-  order.reverse()
-  vis = [False]*N
-  reps = [] # 代表元集合
-  for r in order:
-    if vis[r]: continue
-    rep[r] = r
-    vis[r] = True
-    reps.append(r)
-    # 逆グラフ上でrから到達できる点を列挙
-    task = [r]
+  ans_comp = []
+  ans_comp_inv = [-1] * N
+  comp_id = 0
+  for v in order[::-1]:
+    if vis[v]: continue
+    vis[v] = True
+    task = [v]
+    comp_set = {v}
+    ans_comp_inv[v] = comp_id
     while task:
       p = task.pop()
       for q in R[p]:
-        if vis[q]: continue
-        vis[q] = True
-        rep[q] = r
-        task.append(q)
-        
-  reps_inv = [-1]*N
-  for i, r in enumerate(reps):
-    reps_inv[r] = i
-    
-  Nr = len(reps)
-  Ir = [set() for _ in range(Nr)] # 簡約後の隣接リスト
+        if vis[q]:
+          cq = ans_comp_inv[q]
+        else:
+          comp_set.add(q)
+          ans_comp_inv[q] = comp_id
+          task.append(q)
+          vis[q] = True 
+    ans_comp.append(comp_set)
+    comp_id += 1
+  ans_I = [set() for _ in range(comp_id)]
   for i in range(N):
-    ir = reps_inv[rep[i]]
     for j in I[i]:
-      jr = reps_inv[rep[j]]
-      if ir == jr: continue
-      Ir[ir].add(jr) 
-  points = [set() for _ in range(Nr)]
-  for i in range(N):
-    points[reps_inv[rep[i]]].add(i)
-  points_inv = [-1] * N
-  for i, s in enumerate(points):
-    for j in s:
-      points_inv[j] = i
-  
-  return points, points_inv, Ir # 各成分に含まれる点(list[list[int]]]), 成分間の隣接リスト(list[set[int]])
+      if ans_comp_inv[i] != ans_comp_inv[j]:
+        ans_I[ans_comp_inv[i]].add(ans_comp_inv[j])
+  return ans_comp, ans_comp_inv, ans_I 
+  # 成分(set), 頂点ごとの所属成分, 成分間の隣接リスト 
 
 from collections import deque
 def topological_sort(I):
@@ -107,7 +79,7 @@ def topological_sort(I):
         vis[q] = True
   return ans_order, (len(ans_order) == N) # DAGでない場合、二つ目の戻り値がFalseとなる
 
-class Two_SAT(): # 2-SATを解く
+class Two_SAT():
   def __init__(self):
     self.n = 0
     self.I = []
@@ -126,6 +98,14 @@ class Two_SAT(): # 2-SATを解く
       
     self.info.append([(a, ta), (b, tb)])
     self.n = len(I) // 2
+  
+  def is_possible(self): # 充足可能かどうかを返す
+    I = self.I
+    C, C_inv, Ir = strongly_connected_component(I, 2 * self.n)
+    for i in range(self.n):
+      if C_inv[i << 1] == C_inv[(i << 1) | 1]:
+        return False  
+    return True
     
   def derive(self): # 充足可能なら解の一つを返し、そうでにならNoneを返す
     I = self.I
