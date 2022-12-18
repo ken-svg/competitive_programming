@@ -84,3 +84,37 @@ def floor_sum(n, m, a, b):
   y = (a * (n-1) + b) // m
   ans += y
   return ans + floor_sum(y, a, m, (a * (n-1) + b) % m)
+
+# V以下の数に限り、素因数分解する O(VlogV + QlogV) V:入力上限, Q:factoringの呼び出し回数
+V = 2 * 10 ** 6 + 1 
+jump_to = [-1] * (V + 1)
+for p in range(2, V + 1):
+  if jump_to[p] != -1: continue
+  jump_to[p] = 1
+  for q in range(p * p, V + 1, p):
+    jump_to[q] = q // p
+def factoring_with_preprocess(n):
+  fac = []
+  while n > 1:
+    fac.append(n // jump_to[n])
+    n = jump_to[n]
+  return fac # 例: 60 -> [2, 2, 3, 5]
+
+# 前処理なしの素因数分解 １回あたりO(V^(1/2))　V:入力
+import math
+def factoring(n):
+  fac = []
+  M = math.ceil(math.sqrt(n)) + 2
+  vis = [False] * M
+  for p in range(2, M):
+    if vis[p]: continue
+    if p * p > n: break
+    while n % p == 0:
+      n //= p
+      fac.append(p)
+    for q in range(p, M, p):
+      vis[q] = True
+  if n > 1:
+    fac.append(n)
+  return fac
+
