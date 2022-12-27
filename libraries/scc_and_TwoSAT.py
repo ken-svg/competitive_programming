@@ -81,6 +81,7 @@ def topological_sort(I):
 
 
 # 22/12/25 sccとは独立に実装します
+# 使用例: https://atcoder.jp/contests/abc277/submissions/37578021
 class Two_SAT():
   def __init__(self):
     self.I = []
