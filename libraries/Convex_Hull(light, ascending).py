@@ -1,4 +1,54 @@
 from math import gcd
+# 直線の係数が整数または小数の場合
+# https://atcoder.jp/contests/jag2015summer-day4/submissions/37699281
+def cht_append(a, b, cht_info): # 直線 y = a*x + b の追加(aは単調増加)
+  # cht_info = [A分子, B分子, X分母, X分母]
+  A_num, B_num, X_num, X_den = cht_info
+  a_num = a #; a_den = 1;
+  b_num = b #; b_den = 1;
+  while X_num:
+    ap_num, bp_num = A_num[-1], B_num[-1]
+    x_num, x_den = X_num[-1], X_den[-1]
+    if (ap_num - a_num) * x_num > (b_num - bp_num) * x_den: break
+    A_num.pop()
+    B_num.pop()
+    X_num.pop()
+    X_den.pop()
+  if A_num:
+    ap_num, bp_num = A_num[-1], B_num[-1]
+    if ap_num == a_num:
+      if bp_num >= b_num: return
+      else: # ストックされた直線が一つしか残っておらず、これから追加する直線がそれと同じ傾きかつ大きい場合のみこのケース
+        B_num[-1] = b_num
+        return
+    x_num, x_den = (b_num - bp_num), (ap_num - a_num)
+    d = gcd(x_num, x_den)
+    if x_den < 0: d *= -1
+    X_num.append(x_num // d)
+    X_den.append(x_den // d)
+  A_num.append(a_num)
+  B_num.append(b_num)  
+  
+def cht_value(x, cht_info): # 点xでの値を求める(xは整数)
+  A_num, B_num, X_num, X_den = cht_info
+  if not A_num: return None
+  x_num = x
+  lt = -1
+  rt = len(X_num)
+  while rt - lt > 1:
+    ct = (rt + lt) // 2
+    if x_num * X_den[ct] <= X_num[ct]:
+      rt = ct
+    else:
+      lt = ct
+  a_num_rt = A_num[rt]
+  b_num_rt = B_num[rt]
+  return a_num_rt * x_num + b_num_rt
+
+
+
+"""
+from math import gcd
 class convex_hull():
   def __init__(self):
     self.A = []
@@ -89,3 +139,4 @@ class convex_hull():
     b = B[a]
     #print("!", a, x, b, a*x+b)
     return a * x + b
+"""
