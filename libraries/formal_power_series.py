@@ -154,6 +154,32 @@ def fps_exp(A, length): # exp(A), Aは定数項が[0], length-1次まで
       #print(G)
     return G
   
+def polynomial_taylor_shift(A, d): # A(x) -> A(x+d)
+  N = len(A) - 1
+  fact = [1]
+  tmp = 1
+  for i in range(1, N+1):
+    tmp *= i
+    tmp %= mod
+    fact.append(tmp)
+  V = [(A[i] * fact[i]) % mod for i in range(N, -1, -1)]
+  W = [1]
+  tmp = 1
+  for i in range(1, N+1):
+    tmp *= inv(i, mod)
+    tmp %= mod
+    tmp *= d
+    tmp %= mod
+    W.append(tmp)
+  B = fps_power(V, W)[N::-1]
+  tmp = 1
+  for i in range(N+1):
+    B[i] = (B[i] * tmp) % mod
+    tmp *= inv(i+1, mod)
+    tmp %= mod
+  return B
+
+  
 # ----- 以下は没案、当初はfpsをclassで実装する方針だった -----
 
 def convolution(conved_list):
