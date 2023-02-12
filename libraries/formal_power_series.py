@@ -179,6 +179,22 @@ def polynomial_taylor_shift(A, d): # A(x) -> A(x+d)
     tmp %= mod
   return B
 
+def Bostan_Mori(P, Q, N): # [x^N] P(x) / Q(x)
+  num = P[:N+1] + [0] * max(0, N+1 - len(P))
+  den = Q[:N+1] + [0] * max(0, N+1 - len(P))
+  while N >= 1:
+    den_neg = []
+    fac = 1
+    for q in den:
+      den_neg.append(q * fac)
+      fac *= -1
+    num = fps_power(num, den_neg)[N%2:N+1:2]
+    den = fps_power(den, den_neg)[0:N+1:2]
+
+    N //= 2
+  
+  return num[0] * inv(den[0], mod)
+
   
 # ----- 以下は没案、当初はfpsをclassで実装する方針だった -----
 
