@@ -41,6 +41,7 @@ class maxflow:
       for cap, q, _, _ in G[p]:
         if cap == 0 or dist[q] >= 0: continue
         dist[q] = d_n
+        if q == t: break
         task.append(q)
     return dist[t] >= 0
     
@@ -50,7 +51,7 @@ class maxflow:
     G = self.G
     dist_t = dist[t]
     path = [None]*dist_t # 今まで辿った経路を入れる（逆辺で管理）
-    cap_min = [None]*dist_t+[10**20] # 今の経路において、各深さまでの容量最小値
+    cap_min = [None]*dist_t+[1 << 59] # 今の経路において、各深さまでの容量最小値
     path_len_now = 0 
     ans = 0
       
@@ -96,7 +97,7 @@ class maxflow:
         q = fr
       ans += flow
     return ans
-
+ 
   def flow(self, s, t, flow_limit = 10**20, reset = False): # sからtへの最大流量を計算、O(V^2 E)　(flow_limit: 流量上限, reset:　流れをリセットするかどうか)
     if reset: #self.start != s or self.terminal != t:
       self.reset()
