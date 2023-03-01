@@ -1,13 +1,12 @@
-# 逆元
-mod = 998244353
 # mod = 素数
+mod = 998244353
 _inv_t = {}
 _inv_t[1] = 1
 _inv_t[0] = 0
-def inv(x, mod): # xとmodは互いに素。さもなくば出力は0となる
+def inv(x, mod):
   x %= mod
   if x not in _inv_t:
-    _inv_t[x] = mod + (-mod * inv(mod % x, x) + 1) // x
+    _inv_t[x] = inv(mod % x, mod) * (mod - mod // x) % mod
   return _inv_t[x]
 
 # 約数列挙 O(\sqrt(N))
