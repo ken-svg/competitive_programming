@@ -117,3 +117,47 @@ def factoring(n):
     fac.append(n)
   return fac
 
+from math import sqrt, ceil
+def Wheel_Sieve(N): # N以下の素数の列挙
+  # N以下の素因数を列挙
+  if N <= 1:
+    return []
+  elif N <= 5:
+    return [p for p in range(2, N+1) if p != 4]
+  
+  ans = []
+  M = ceil(sqrt(N) + 1)
+  # Step1: w = p1 * p2 * ... * pr <= M　なる、要素が最小の素数列{pi}を求める
+  vis = [False] * (M+1)
+  w = 1
+  for p in range(2, M+1):
+    if vis[p]: continue
+    w *= p 
+    if w * p > M: break
+    ans.append(p)
+    for q in range(p, M+1, p):
+      vis[q] = True
+    
+  
+  # Step2: w = p1 * p2 * ... * prと互いに素な、w以下の数の集合Sを求める 
+  S = [v for v in range(1, w+1) if not vis[v]]
+  
+  # Step3: Sの中から、小さい順に素数を見つける
+  ans2 = [] 
+  min_prime_factor = [0] * ((N+1)//2) # これのせいで線形。辞書を使うとオーダー改善するが定数倍が重い
+  for s1 in range(0, N+1, w):
+    for s0 in S:
+      s = s1 + s0
+      if s == 1: continue
+      if s > N: break
+      if min_prime_factor[s//2] == 0:
+        ans2.append(s)
+        mpf = s
+      else:
+        mpf = min_prime_factor[s//2]
+      for p in ans2:
+        if p > mpf: break
+        if p * s > N: break
+        min_prime_factor[p * s // 2] = p
+      
+  return ans + ans2
