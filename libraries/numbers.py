@@ -188,3 +188,54 @@ def Sqrt_Cipolla(a, p): # a^(1/2) mod p(奇素数)　を求める。二つある
     fac = [(fac[0] * fac[0] + d * fac[1] * fac[1]) % p, (2 * fac[0] * fac[1]) % p]
     Q >>= 1 
   return now[0] % p
+
+from random import randint
+def Sqrt_Tonelli_Shanks(a, p): 
+  # a^(1/2) mod p(奇素数)　を求める。二つあるうち、ランダムに一つを返す
+  # 上のChipollaの方がオーダーはよいが、こちらの方が定数倍がよさそう。(p = 998244353, a = 121で、3.6 * 10^(-5)sec.)
+  if a == 0: return 0
+  if p == 2: return a
+  if pow(a, (p - 1) // 2, p) != 1:
+    return None # 平方非剰余
+ 
+  # 準備：
+  #   以後、原子根gを適当にとり、そのべきで数を表す。g^lを、[l]とかく。
+  #   さらに、[l] = [l + (p-1)] であることに着目して、[]内の数をZ_(p-1)と同一視する。
+  #   中国剰余定理を使って、Z_(p-1)を、Z_(2^Q)とZ_(q)(qは奇数)の直積に分解する。
+  #     つまり、l1 = l % (2^Q), l2 = l % (q)として、l = (l1, l2)とおく。
+  #   簡単のため、[l] = [(l1, l2)] = [l1, l2]とかく。
+  
+  # Step1: p-1の分解 p-1 = 2^Q * q(奇数)
+  Q = 0
+  q = p - 1
+  while q % 2 == 0:
+    q //= 2
+    Q += 1
+   
+  # Step2: 第一近似
+  x = pow(a, (q + 1) // 2, p)
+  #  a = [l1, l2]とする。
+  #  上記のxは、x^2 = [(q+1)l1, (q+1)l2] = [(q+1)l1, l2]を満たす。すなわち、第２成分はa^(1/2)に一致した。
+  
+  # Step3: xの改善
+  a_inv = pow(a, p-2, p) #inv(a, p)
+  r = (pow(x, 2, p) * a_inv) % p # = [q*l1, 0]
+  # b として、[ある奇数(よって0bit目が1), 0]という数をとる。
+  b = 1
+  while pow(b, (p - 1) // 2, p) == 1: # 2^(Q-1) * q乗した結果が1なら、bの第1成分は偶数。取り直し。
+    b = randint(1, p - 1)
+  b = pow(b, q, p)
+  
+  shift = 2
+  while shift <= Q:
+    check = pow(r, 1 << (Q - shift), p) # rを2^(Q-shift)乗してみる。
+    # このとき、check = 1 (= [0,0])とならなければ、rの第１成分の２進数表示の下から(shift-1)ビット目は、0でない。
+    if check != 1:
+      x *= b # b = [(shift-2 bit目が1, それ以下のbitは0), 0]
+      x %= p
+      r *= pow(b, 2, p) # r = x^2 * a_inv も補正。これにより、rの下から(shift-1)ビット目が0となる。
+      r %= p
+    b *= b # b = b^2. よって、第1成分が左シフトする。
+    b %= p
+    shift += 1 
+  return x
