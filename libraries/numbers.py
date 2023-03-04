@@ -161,3 +161,30 @@ def Wheel_Sieve(N): # N以下の素数の列挙
         min_prime_factor[p * s // 2] = p
       
   return ans + ans2
+
+from random import randint
+# 奇素数modでの平方根
+def Sqrt_Cipolla(a, p): # a^(1/2) mod p(奇素数)　を求める。二つあるうち、ランダムに一つを返す
+  if a == 0: return 0
+  if pow(a, (p - 1) // 2, p) != 1:
+    return None # 平方非剰余
+  
+  # x^2 - 2bx + a = 0 の右辺が規約なるbをとる
+  for _ in range(150):
+    b = randint(1, p-1)
+    d = (b**2 - a) % p
+    if pow(d, (p - 1) // 2, p) == 1: # 平方剰余
+      continue
+    else:
+      break
+      
+  # 解 x = b + sqrt(b^2 - a)は、x^(p+1) = aを満たす。よって、x^((p+1) // 2)が求める答え。
+  now = [1, 0]
+  fac = [b, 1]
+  Q = (p+1) // 2
+  while Q > 0:
+    if Q & 1:
+      now = [(now[0] * fac[0] + d * now[1] * fac[1]) % p, (now[0] * fac[1] + now[1] * fac[0]) % p]
+    fac = [(fac[0] * fac[0] + d * fac[1] * fac[1]) % p, (2 * fac[0] * fac[1]) % p]
+    Q >>= 1 
+  return now[0] % p
