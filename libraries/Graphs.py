@@ -17,10 +17,11 @@ def Dijkstra(s, I):
       
   return cost
 
+# LCA and Euler tour -> 実装によって細部が違ってくるため、ライブラリにしません
+# https://atcoder.jp/contests/abc294/submissions/39878403   を参考に
 
 
-
-# 一般グラフno最大マッチング(ネタ枠w)
+# 一般グラフno最大マッチング(ネタ枠)
 # 計算量 0(EVlogE)らしい
 # 参考にした解説： https://qiita.com/Kutimoti_T/items/5b579773e0a24d650bdf
 from collections import deque
