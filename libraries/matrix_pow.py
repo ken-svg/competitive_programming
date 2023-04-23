@@ -1,4 +1,5 @@
-def mat_mal(P, Q, mod = 0):
+# 行列P * 行列Q 
+def mat_mul(P, Q, mod = 0):
   a = len(P)
   c = len(P[0])
   b = len(Q[0])
@@ -15,7 +16,24 @@ def mat_mal(P, Q, mod = 0):
     R.append(r0)
   return R
 
-def inv_mal(P):
+# 行列P * ベクトルv
+def mat_vec_mul(P, v, mod = 0):
+  if len(P[0]) != len(v):
+    return None
+  
+  ans = []
+  for i in range(len(P)):
+    tmp = 0
+    for j in range(len(v)):
+      tmp += P[i][j] * v[j]
+      if mod: tmp %= mod
+      
+    ans.append(tmp)
+    
+  return ans
+
+# 行列Pの逆行列
+def inv_mat(P):
   a = len(P)
   Q = [[int(i == j) for j in range(a)] for i in range(a)]
   for i in range(a):
@@ -54,7 +72,7 @@ def inv(x, mod):
     _inv_t[x] = inv(mod % x, mod) * (mod - mod // x) % mod
   return _inv_t[x]
 
-def inv_mal_mod(P, mod): # modありの逆行列を求める。inv(x, mod)をnumbersからインポートすること
+def inv_mat_mod(P, mod): # modありの逆行列を求める。inv(x, mod)をnumbersからインポートすること
   a = len(P)
   Q = [[int(i == j) for j in range(a)] for i in range(a)]
   for i in range(a):
@@ -82,3 +100,48 @@ def inv_mal_mod(P, mod): # modありの逆行列を求める。inv(x, mod)をnum
       return None # ランク落ち
     
   return Q
+
+# 行列の掃き出し(できるだけ上に寄せる)
+# 同時に行列式を求める。O(N^3)
+def sweep_mat(A, mod = 0):
+  n = len(A)
+  if n != len(A[0]):
+    return None
+  
+  det = 1 # 行列式
+  
+  A = [[v for v in a] for a in A]
+  i_done = 0
+  for j in range(n):
+    target_i = -1
+    for k in range(i_done, n):
+      if A[k][j] != 0:
+        target_i = k
+        break
+        
+    if target_i == -1: # all 0
+      continue
+      
+    v = A[target_i][j]
+    v_inv = inv(v, mod) if mod else 1 / v
+    
+    det *= v
+    if mod: det %= mod
+    
+    for l in range(j, n):
+      A[target_i][l] *= v_inv
+      if mod: A[target_i][l] %= mod
+      
+    for i in range(n):
+      if i == target_i: continue
+      a = A[i][j]
+      for l in range(j, n):
+        A[i][l] -= A[target_i][l] * a
+        if mod: A[i][l] %= mod
+          
+    if target_i != i_done:
+      A[target_i], A[i_done] = A[i_done], A[target_i]
+      det *= -1
+    i_done += 1
+    
+  return A, det
