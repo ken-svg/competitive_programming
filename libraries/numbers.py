@@ -120,10 +120,8 @@ def factoring(n):
 from math import sqrt, ceil
 def Wheel_Sieve(N): # N以下の素数の列挙
   # N以下の素因数を列挙
-  if N <= 1:
-    return []
-  elif N <= 5:
-    return [p for p in range(2, N+1) if p != 4]
+  if N <= 23:
+    return [a for a in [2, 3, 5, 7, 11, 13, 17, 19, 23] if a <= N]
   
   ans = []
   M = ceil(sqrt(N) + 1)
