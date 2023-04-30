@@ -45,7 +45,7 @@ class SegTree():
     elif r == l:
       return op(ans_lt, ans_rt)    
 
-      def bisect_left(self, a): 
+def bisect_left(self, a): 
     # B[i] = st.apply(st[:i]) として、Bを値aについて二分探索。挿入位置（左よせ）を返す。
     # 同じ値があるときは、その値よりも左の位置を返す
     data = self.data
