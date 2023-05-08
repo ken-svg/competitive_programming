@@ -35,7 +35,7 @@ def Subset_Bitwise_OR_convolution(A, B, inplace = True, op = lambda a0, a1: (a0 
 
 
 mod = 998244353
-def Subset_Convolution_for_general(A, B, add_op = lambda x, y: (x + y) % (998244353), inv_add_op = lambda x, y: (y - x) % (998244353), prod_op = lambda x, y: (x * y) % (998244353)):
+def Subset_Convolution(A, B, add_op = lambda x, y: (x + y) % (998244353), inv_add_op = lambda x, y: (y - x) % (998244353), prod_op = lambda x, y: (x * y) % (998244353)):
   A_len = len(A)
   N = A_len.bit_length() - 1
   
