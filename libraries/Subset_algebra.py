@@ -35,7 +35,10 @@ def Subset_Bitwise_OR_convolution(A, B, inplace = True, op = lambda a0, a1: (a0 
 
 
 mod = 998244353
-def Subset_Convolution(A, B, add_op = lambda x, y: (x + y) % (998244353), inv_add_op = lambda x, y: (y - x) % (998244353), prod_op = lambda x, y: (x * y) % (998244353)):
+def Subset_Convolution_for_general(A, B, add_op = lambda x, y: (x + y) % (998244353),
+                                   inv_add_op = lambda x, y: (y - x) % (998244353),
+                                   add_identity = 0,
+                                   prod_op = lambda x, y: (x * y) % (998244353)):
   A_len = len(A)
   N = A_len.bit_length() - 1
   
@@ -47,8 +50,8 @@ def Subset_Convolution(A, B, add_op = lambda x, y: (x + y) % (998244353), inv_ad
       if j & (1 << i):
         pop_count[j] += pop_count[j ^ (1 << i)]
   
-  A_degfied = [[0] * p + [a] for a, p in zip(A, pop_count)]
-  B_degfied = [[0] * p + [a] for a, p in zip(B, pop_count)]
+  A_degfied = [[add_identity] * p + [a] for a, p in zip(A, pop_count)]
+  B_degfied = [[add_identity] * p + [a] for a, p in zip(B, pop_count)]
   
   for degfied in [A_degfied, B_degfied]:
     for i in range(N):
@@ -69,7 +72,7 @@ def Subset_Convolution(A, B, add_op = lambda x, y: (x + y) % (998244353), inv_ad
     for x in range(pop_j, N + 1):
       # k + l = x
       # 0 <= k <= pop_j, 0 <= l <= pop_j
-      tmp = 0
+      tmp = add_identity
       for k in range(max(x - pop_j, 0), min(pop_j, x) + 1):
         l = x - k
         tmp = add_op(tmp, prod_op(A_degfied_j[k], B_degfied_j[l]))
