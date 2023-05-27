@@ -97,3 +97,75 @@ class WeightedUnionFind():
   
   def size(self, x): # xを含む成分のサイズ
     return -self.parent[self.find(x)]
+  
+class PartiallyPersistentUnionFind():
+  def __init__(self, N):
+    self.N = N
+    self.par = [-1] * N # 従属先(自分が親のときは-1)
+    self.num = [[1] for _ in range(N)]
+    self.num_ver = [[0] for _ in range(N)]
+    self.rank = [0] * N # 深さ
+    self.time_now = 0 # 初期時刻は0
+    
+  def find_now(self, x): # 現時点のxの親
+    par = self.par
+    p = x
+    while par[p] is not -1:
+      p, _ = par[p]
+    return p
+    
+  def find(self, x, t): # 時刻tでのxの親
+    par = self.par
+    p = x
+    while par[p] is not -1:
+      pp, tp = par[p]
+      if tp >= t: break # これより先は時刻tより先の情報となるため
+      p = pp 
+    return p  
+    
+  def merge(self, x, y): # 現時点のxとyをマージ
+    # xとyをマージして時刻を1進める
+    # !!状況が変わらない場合、時刻は進めない！！
+    par = self.par
+    rank = self.rank
+    
+    x = self.find_now(x)
+    y = self.find_now(y)
+    if x == y:
+      return False #状況が変わらない(時刻が進まないことに注意)
+    
+    rx, ry = rank[x], rank[y]
+    if rx > ry:
+      x, y = y, x
+      rx, ry = ry, rx
+    
+    par[x] = [y, self.time_now]
+    self.time_now += 1
+    if rx == ry:
+      rank[y] = ry + 1
+    
+    num_new = self.num[x][-1] + self.num[y][-1]
+    num_y = self.num[y]
+    num_ver_y = self.num_ver[y]
+    
+    num_ver_y.append(self.time_now)
+    num_y.append(num_new)
+    
+    return True
+    
+  def size(self, x, t): # 時刻tでxを含む連結成分の頂点数
+    x = self.find(x, t)
+    num_ver_x = self.num_ver[x]
+    if not(0 <= t <= self.time_now):
+      return False
+    
+    lt = 0
+    rt = len(num_ver_x)
+    while rt - lt > 1:
+      ct = (rt + lt) // 2
+      if num_ver_x[ct] > t:
+        rt = ct
+      else:
+        lt = ct
+        
+    return self.num[x][lt]
