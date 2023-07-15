@@ -70,7 +70,7 @@ def bisect_left(self, a):
         
     return min(now_pos - m, n-1)
   
-  def bisect_right(self, a): 
+def bisect_right(self, a): 
     # B[i] = st.apply(st[:i]) として、Bを値aについて二分探索。挿入位置（左よせ）を返す。
     # 同じ値があるときは、その値よりも右の位置を返す
     data = self.data
