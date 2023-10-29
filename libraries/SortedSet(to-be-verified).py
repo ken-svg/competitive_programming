@@ -724,6 +724,8 @@ class AVL_tree():
   
   def _find_greatest_lower(self, x):
     now = self.root
+    if now is None:
+      return None, None
     V = self.V
     L = self.L
     R = self.R
@@ -743,6 +745,8 @@ class AVL_tree():
     
   def _find_least_upper(self, x):
     now = self.root
+    if now is None:
+      return None, None
     V = self.V
     L = self.L
     R = self.R
