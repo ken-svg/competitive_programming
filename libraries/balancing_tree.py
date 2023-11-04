@@ -764,8 +764,8 @@ class Red_Black_tree():
           if p_par_cl:
             break # これ以上遡る必要はないので、処理終了
           else:
-            par = P[par]
             now = par
+            par = P[par]
             # par以下の黒高さが足りないので、一つ遡って処理を繰り返す
       
       else: # nowがparの右の子の場合
@@ -802,8 +802,8 @@ class Red_Black_tree():
           if p_par_cl:
             break # これ以上遡る必要はないので、処理終了
           else:
-            par = P[par]
             now = par
+            par = P[par]
             # par以下の黒高さが足りないので、一つ遡って処理を繰り返す
           
   def remove(self, x):
@@ -911,20 +911,21 @@ class Red_Black_tree():
     L = self.L
     R = self.R
     V = self.V
+    IsRed = self.IsRed
     ans = []
     state = {}
     while now is not None:
       if now not in state:
         state[now] = 1
         if L[now] is not None:
-          print("left", now, "->", L[now])
+          print("left", now, "->", L[now], " color", IsRed[now], "->", IsRed[L[now]])
           now = L[now]
           
       elif state[now] == 1:
         state[now] = 2
         ans.append(V[now])
         if R[now] is not None:
-          print("right", now, "->", R[now])
+          print("right", now, "->", R[now], " color", IsRed[now], "->", IsRed[R[now]])
           now = R[now]
           
       else:
