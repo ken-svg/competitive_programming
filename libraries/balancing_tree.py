@@ -38,7 +38,7 @@ class AVL_tree():
     r = R[q]
     pp = P[p]
     
-    P[q] = P[p]
+    P[q] = pp
     R[q] = p
     P[p] = q
     L[p] = r
@@ -52,8 +52,8 @@ class AVL_tree():
     else:
       self.root = q
       
-    self._update_H_and_C(q)
     self._update_H_and_C(p)
+    self._update_H_and_C(q)
     self._update_H_and_C(pp)
   
   def _left_right_rotation(self, node_id):
@@ -85,9 +85,9 @@ class AVL_tree():
     else:
       self.root = r
       
-    self._update_H_and_C(r)
-    self._update_H_and_C(q)
     self._update_H_and_C(p)
+    self._update_H_and_C(q)
+    self._update_H_and_C(r)
     self._update_H_and_C(pp)
     
   def _right_left_rotation(self, node_id):
@@ -119,9 +119,9 @@ class AVL_tree():
     else:
       self.root = r
       
-    self._update_H_and_C(r)
-    self._update_H_and_C(q)
     self._update_H_and_C(p)
+    self._update_H_and_C(q)
+    self._update_H_and_C(r)
     self._update_H_and_C(pp)
     
   def _left_rotation(self, node_id):
@@ -133,7 +133,7 @@ class AVL_tree():
     r = L[q]
     pp = P[p]
     
-    P[q] = P[p]
+    P[q] = pp
     L[q] = p
     P[p] = q
     R[p] = r
@@ -147,8 +147,8 @@ class AVL_tree():
     else:
       self.root = q
       
-    self._update_H_and_C(q)
     self._update_H_and_C(p)
+    self._update_H_and_C(q)
     self._update_H_and_C(pp)
   
   def _find_greatest_lower(self, x):
@@ -469,8 +469,8 @@ class Red_Black_tree():
     else:
       self.root = q
       
-    self._update_H_and_C(q)
     self._update_H_and_C(p)
+    self._update_H_and_C(q)
     self._update_H_and_C(pp)
   
   def _left_rotation(self, node_id):
@@ -496,8 +496,8 @@ class Red_Black_tree():
     else:
       self.root = q
       
-    self._update_H_and_C(q)
     self._update_H_and_C(p)
+    self._update_H_and_C(q)
     self._update_H_and_C(pp)
   
   def _left_right_rotation(self, node_id):
@@ -529,9 +529,9 @@ class Red_Black_tree():
     else:
       self.root = r
       
-    self._update_H_and_C(r)
-    self._update_H_and_C(q)
     self._update_H_and_C(p)
+    self._update_H_and_C(q)
+    self._update_H_and_C(r)
     self._update_H_and_C(pp)
     
   def _right_left_rotation(self, node_id):
@@ -563,9 +563,9 @@ class Red_Black_tree():
     else:
       self.root = r
       
-    self._update_H_and_C(r)
-    self._update_H_and_C(q)
     self._update_H_and_C(p)
+    self._update_H_and_C(q)
+    self._update_H_and_C(r)
     self._update_H_and_C(pp)
     
   def _find_greatest_lower(self, x):
@@ -673,7 +673,7 @@ class Red_Black_tree():
       if gl_node is None: # 追加する値が最小のとき
         now = self.root
         while L[now] is not None:
-          now = self.L[now]
+          now = L[now]
         P.append(now)
         L.append(None)
         R.append(None)
