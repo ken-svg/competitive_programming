@@ -1592,4 +1592,4 @@ class Splay_tree():
           
       else:
         now = P[now]
-    return str(ans) 
+    return str(ans)  
