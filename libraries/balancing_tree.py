@@ -931,3 +931,289 @@ class Red_Black_tree():
       else:
         now = P[now]
     return str(ans)
+
+from random import randint
+class Treap():
+  def __init__(self, A):
+    self.root = None
+    """
+    self.P = []
+    self.L = []
+    self.R = []
+    self.W = [] # 重さ（優先度）
+    self.C = [] # 部分木の頂点数
+    self.V = []
+    以上は最初にaddしたときに作成する
+    """
+    self.len = 0
+    for a in A:
+      self.add(a)
+      
+  def _update_H_and_C(self, node_id):
+    if node_id is not None:
+      C = self.C
+      left = self.L[node_id]
+      right = self.R[node_id]
+      C[node_id] = 1
+      if left is not None:
+        C[node_id] += C[left]
+      if right is not None:
+        C[node_id] += C[right]
+        
+  def _right_rotation(self, node_id):
+    P = self.P
+    R = self.R
+    L = self.L
+    p = node_id
+    q = L[p]
+    r = R[q]
+    pp = P[p]
+    
+    P[q] = pp
+    R[q] = p
+    P[p] = q
+    L[p] = r
+    if r is not None:
+      P[r] = p
+    if pp is not None:
+      if L[pp] == p:
+        L[pp] = q
+      else:
+        R[pp] = q
+    else:
+      self.root = q
+      
+    self._update_H_and_C(p)
+    self._update_H_and_C(q)
+    self._update_H_and_C(pp)
+  
+  def _left_rotation(self, node_id):
+    P = self.P
+    R = self.R
+    L = self.L
+    p = node_id
+    q = R[p]
+    r = L[q]
+    pp = P[p]
+    
+    P[q] = pp
+    L[q] = p
+    P[p] = q
+    R[p] = r
+    if r is not None:
+      P[r] = p
+    if pp is not None:
+      if L[pp] == p:
+        L[pp] = q
+      else:
+        R[pp] = q
+    else:
+      self.root = q
+      
+    self._update_H_and_C(p)
+    self._update_H_and_C(q)
+    self._update_H_and_C(pp)
+  
+  def _find_greatest_lower(self, x):
+    now = self.root
+    if now is None:
+      return None, None
+    V = self.V
+    L = self.L
+    R = self.R
+    C = self.C
+    val, node_found = None, None
+    count = C[now] if now is not None else 0
+    while now is not None:
+      if x < V[now]:
+        count -= 1
+        if R[now] is not None:
+          count -= C[R[now]]
+        now = L[now]
+      else:
+        val, node_found = V[now], now
+        now = R[now]
+    return val, node_found # 値、頂点(、値以下の要素数)を返す
+    
+  def _find_least_upper(self, x):
+    now = self.root
+    if now is None:
+      return None, None
+    V = self.V
+    L = self.L
+    R = self.R
+    C = self.C
+    val, node_found = None, None
+    count = C[now] if now is not None else 0
+    while now is not None:
+      if V[now] < x:
+        count -= 1
+        if L[now] is not None:
+          count -= C[L[now]]
+        now = R[now]
+      else:
+        val, node_found = V[now], now
+        now = L[now]
+    return val, node_found # 値、頂点(、値以上の要素数)を返す
+  
+  def _buttom_up_update_add(self, node_id): # 平衡への復帰、頂点数・高さの更新
+    L = self.L
+    R = self.R
+    P = self.P
+    W = self.W
+    now = node_id
+    
+    while now is not None:
+      self._update_H_and_C(now)
+      par = P[now]
+      if par is None: break
+    
+      if W[par] > W[now]:
+        if L[par] == now:
+          self._right_rotation(par)
+        else:
+          self._left_rotation(par)
+        self._update_H_and_C(par)
+      else:
+        break
+        
+  def add(self, x):
+    if self.len == 0:
+      self.root = 0
+      self.P = [None]
+      self.L = [None]
+      self.R = [None]
+      self.W = [randint(1, 10**6)] # 重さ（優先度）
+      self.C = [1] # 部分木の頂点数
+      self.V = [x]
+      self.len = 1
+    else:
+      self.len += 1
+      gl_val, gl_node = self._find_greatest_lower(x)
+      P = self.P
+      L = self.L
+      R = self.R
+      W = self.W
+      C = self.C
+      V = self.V
+      
+      if gl_node is None: # 追加する値が最小のとき
+        now = self.root
+        while L[now] is not None:
+          now = self.L[now]
+        P.append(now)
+        L.append(None)
+        R.append(None)
+        W.append(randint(1, 10**6))
+        C.append(0)
+        V.append(x)
+        new_node = len(P) - 1
+        L[now] = new_node
+        self._buttom_up_update_add(new_node)
+        return 
+      
+      elif R[gl_node] is None:
+        # 追加する値が最小でない場合で、
+        # gl_nodeの右の子が存在しない場合
+        P.append(gl_node)
+        L.append(None)
+        R.append(None)
+        W.append(randint(1, 10**6))
+        C.append(0)
+        V.append(x)
+        new_node = len(P) - 1
+        R[gl_node] = new_node
+        self._buttom_up_update_add(new_node)
+        return 
+      
+      else:  
+        # gl_nodeの右の子が存在する場合
+        now = R[gl_node]
+        while L[now] is not None:
+          now = L[now] 
+        P.append(now)
+        L.append(None)
+        R.append(None)
+        W.append(randint(1, 10**6))
+        C.append(0)
+        V.append(x)
+        new_node = len(P) - 1
+        L[now] = new_node
+        self._buttom_up_update_add(new_node)
+        return
+  
+  def _move_down_and_remove(self, node_id): # 削除対象の頂点を葉へ移動し、削除
+    L = self.L
+    R = self.R
+    P = self.P
+    W = self.W
+    now = node_id
+    
+    path = []
+    while True:
+      left = L[now]
+      right = R[now]
+      if left is None and right is None:
+        # 削除
+        par = P[now]
+        if par is not None:
+          if L[par] == now:
+            L[par] = None
+          else:
+            R[par] = None
+        break
+      if right is None or (left is not None and W[left] < W[right]):
+        path.append(left)
+        self._right_rotation(now)
+      else:
+        path.append(right)
+        self._left_rotation(now)
+        
+    for p in path[::-1]:
+      self._update_H_and_C(p)
+      
+  def remove(self, x):
+    if self.len == 0:
+      print("AVL_tree.remove: not found " + str(x) + " !!")
+      return 
+    else:
+      gl_val, gl_node = self._find_greatest_lower(x)
+      if x != gl_val:
+        print("AVL_tree.remove: not found " + str(x) + " !!")
+        return
+      self.len -= 1
+      if self.len == 0:
+        self.root = None
+        return
+      self._move_down_and_remove(gl_node)
+      
+  def __contains__(self, x):
+    gl_val, gl_node = self._find_greatest_lower(x)
+    return gl_node is not None and x == gl_val
+    
+  def __str__(self):
+    now = self.root
+    P = self.P
+    L = self.L
+    R = self.R
+    V = self.V
+    W = self.W
+    ans = []
+    state = {}
+    while now is not None:
+      if now not in state:
+        state[now] = 1
+        if L[now] is not None:
+          print("left", now, "->", L[now], " priority", W[now], "->", W[L[now]])
+          now = L[now]
+          
+      elif state[now] == 1:
+        state[now] = 2
+        ans.append(V[now])
+        if R[now] is not None:
+          print("right", now, "->", R[now], " priority", W[now], "->", W[R[now]])
+          now = R[now]
+          
+      else:
+        now = P[now]
+    return str(ans)
