@@ -608,36 +608,3 @@ class AVL_tree():
     dfs(self.root)
     print("sort result :", ans)
     
-avl_t = AVL_tree([0, 6, 4, 5])
-avl_t.remove(5)
-avl_t.add(7)
-avl_t.remove(0)
-avl_t.add(12)
-
-print([avl_t[i] for i in range(len(avl_t))])
-
-N, Q = map(int,input().split())
-info = []
-for _ in range(N):
-  s, t, x = map(int,input().split())
-  info.append([s - x, -1, x])
-  info.append([t - x, -2, x])
-  
-for q in range(Q):
-  d = int(input())
-  info.append([d - 0, q, 0])
-  
-info.sort()
-ans = [-1] * Q
-avl_t = AVL_tree([])
-for dt, t, x in info:
-  if t == -1:
-    avl_t.add(x)
-  elif t == -2:
-    avl_t.remove(x)
-    
-  else:
-    y = avl_t.re(x)
-    ans[t] = y if y is not None else -1
-    
-print(*ans, sep = "\n")
