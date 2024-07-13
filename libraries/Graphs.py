@@ -2,7 +2,7 @@
 from heapq import heappush, heappop
 # s: 始点, I: 隣接リスト I[p]の要素は(隣接点q, コストc) -> cost: sから各点の距離(リスト)
 def Dijkstra(s, I):
-  INF = 10**30
+  INF = 1<<60
   task = [(0, s)]
   cost = [INF]*N
   vis = [False]*N
@@ -20,8 +20,43 @@ def Dijkstra(s, I):
 # LCA and Euler tour -> 実装によって細部が違ってくるため、ライブラリにしません
 # https://atcoder.jp/contests/abc294/submissions/39878403   を参考に
 
+# 重心分解
+import sys
+sys.setrecursionlimit(10 ** 6)
+import pypyjit
+pypyjit.set_param('max_unroll_recursion=-1')
+def find_centroid(I):
+  N = len(I)
+  s = 0
+  vis = [False] * N
+  E = [0] * N
+  P = [-1] * N
+  
+  def dfs(p):
+    c = 1
+    vis[p] = True
+    for q in I[p]:
+      if vis[q]: continue
+      c += dfs(q)
+      P[q] = p
+    E[p] = c
+    return c
+    
+  dfs(0) 
+  arg_min = -1
+  min_val = N + 1
+  for i, e in enumerate(E):
+    if min_val > e and 2 * e >= N:
+      arg_min = i
+      min_val = e
+        
+  if min_val * 2 == N:
+    return arg_min, P[arg_min]
+  else:
+    return arg_min, -1
+    
 
-# 一般グラフno最大マッチング(ネタ枠)
+# 一般グラフの最大マッチング(ネタ枠)
 # 計算量 0(EVlogE)らしい
 # 参考にした解説： https://qiita.com/Kutimoti_T/items/5b579773e0a24d650bdf
 from collections import deque
