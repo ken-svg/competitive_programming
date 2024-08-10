@@ -145,3 +145,56 @@ def sweep_mat(A, mod = 0):
     i_done += 1
     
   return A, det
+
+def sweep_on_F2(A): # 掃き出し法(@F2)
+  N = len(A)
+  M = len(A[0])
+  now = -1
+  rank = N
+  for i in range(M):
+    v = -1
+    for j in range(now + 1, N):
+      if A[j][i] != 0:
+        v = j
+        break
+    if v == -1:
+      rank -= 1
+      continue
+    #print(v)
+    A[v], A[now+1] = A[now+1], A[v]
+    now += 1
+    for j in range(N):
+      if A[j][i] == 0 or j == now: continue
+      for k in range(M):
+        A[j][k] ^= A[now][k]
+  return A, rank
+
+def solve_simultaneous_equations_on_F2(A): # Aは掃き出された行列(@F2)。連立方程式の解を求める
+  N = len(A)
+  M = len(A[0])
+  V = [[] for _ in range(M)]
+  head = set()
+  for a in A:
+    flag = -1
+    ct = 0
+    #print(a)
+    for i, v in enumerate(a):
+      if v == 0: continue
+      if flag == -1:
+        flag = i
+        head.add(flag)
+        #print(i)
+      else:
+        V[i].append(flag)
+        ct += 1
+  
+  base = []
+  for i in range(M):
+    if i in head: continue
+    tmp = [0] * M
+    tmp[i] = 1
+    for j in V[i]:
+      tmp[j] = 1
+    base.append(tmp)
+        
+  return base
