@@ -9,6 +9,17 @@ def inv(x, mod):
     _inv_t[x] = inv(mod % x, mod) * (mod - mod // x) % mod
   return _inv_t[x]
 
+#キャッシュを持たないver（値を使いまわさないならこちらの方が早いこともある）
+mod = 998244353
+_inv_t = {}
+_inv_t[1] = 1
+_inv_t[0] = 0
+def inv(x, mod):
+  x %= mod
+  if x <= 1: return x
+  else:
+    return inv(mod % x, mod) * (mod - mod // x) % mod
+
 # 約数列挙 O(\sqrt(N))
 import math
 def find_divisors(N):
