@@ -1,10 +1,13 @@
+import sys
+import pypyjit
+pypyjit.set_param('max_unroll_recursion=-1')
+sys.setrecursionlimit(10 ** 6)
 def lowlink(I):
   N = len(I)
   vis = [False] * N
   low = [-1] * N
   order = [-1] * N
   def dfs(p, pp, c):
-    print(p, pp, c)
     vis[p] = True
     order[p] = c
     l = c
@@ -15,7 +18,6 @@ def lowlink(I):
         flag = True
         continue
       if vis[q]:
-        print(p, q)
         l = min(l, order[q])
       else:
         c, l0 = dfs(q, p, c)
