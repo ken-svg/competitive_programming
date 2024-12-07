@@ -102,3 +102,81 @@ class Trie():
       now = I[now][s]
       path.append(now)
     word_to_path.append(path)
+
+# 31: Aho_Corasick  
+from collections import deque
+class Aho_Corasick(Trie): # Trie木上でfailure込みのオートマトンを作る
+  # self.words : 与えたwordのリスト(wordの番号はこの順につける)
+  # self.I : その状態その文字でマッチした時の遷移先状態
+  # self.failure : その状態でマッチしなかった時の遷移先状態
+  # self.mark : その状態で直接ヒットしているwordの番号(1つと仮定)
+  # self.mark_count : その状態におけるヒット数
+  
+  def __init__(self, words):
+    super().__init__(words)
+    self._mark_end()
+    self._construct_failure()
+    
+  def __str__(self):
+    ans = []
+    ans.append("<< Aho-Corasick Trie >> \n")
+    ans.append(" Word vs Path \n")
+    for i, (path, word) in enumerate(zip(self.word_to_path, self.words)):
+      ans.append("  " + word + " : " + str(path))
+      ans.append("\n")
+    ans.append(" Failure \n")
+    ans.append("  " + str(self.failure))
+    return "".join(ans)
+    
+  def _mark_end(self):
+    word_to_path = self.word_to_path
+    self.mark = mark = [None] * (len(self.I))
+    for i, path in enumerate(word_to_path):
+      mark[path[-1]] = i  
+      
+  def _construct_failure(self):
+    I = self.I
+    self.failure = failure = [None] * len(I)
+    self.mark_count = mark_count = [0] * len(I)
+    mark = self.mark
+    
+    task = deque([0])
+    while task:
+      p = task.popleft()
+      for s, q in I[p].items():
+        fp = failure[p]
+        while fp is not None:
+          if s in I[fp]:
+            break
+          else:
+            fp = failure[fp]
+        if fp is None:
+          failure[q] = 0
+        else:
+          failure[q] = I[fp][s]
+        mark_count[q] = mark_count[failure[q]] + int(mark[q] is not None)
+        task.append(q)
+        
+  def relate_to(self, T):
+    # Tの各文字をオートマトンの状態に対応付け
+    now = 0
+    ans = []
+    I = self.I
+    failure = self.failure
+    for i, t in enumerate(T):
+      while (now is not None) and (t not in I[now]):
+        now = failure[now]
+      if now is None:
+        now = 0
+      else:
+        now = I[now][t]
+      ans.append(now)
+    return ans
+    
+  def count_match(self, T):
+    mark_count = self.mark_count
+    return sum([mark_count[a] for a in self.relate_to(T)])
+    
+  # 需要があれば
+  #  各文字のヒットする箇所をすべて返す(計算量注意)
+  #  各文字のヒットする最後の箇所を返す
