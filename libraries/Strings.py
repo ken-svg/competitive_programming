@@ -79,3 +79,26 @@ def KMP_search(A, B, complete_search = False):
         return i - len(B) + 1
     
   return ans
+
+# 30: Trie
+class Trie():
+  def __init__(self, words):
+    self.I = [{}]
+    self.words = []
+    self.word_to_path = []
+    for word in words:
+      self.add_word(word)
+      
+  def add_word(self, word):  
+    self.words.append(word)
+    I = self.I
+    word_to_path = self.word_to_path
+    path = []
+    now = 0
+    for s in word:
+      if s not in I[now]:
+        I[now][s] = len(I)
+        I.append({})
+      now = I[now][s]
+      path.append(now)
+    word_to_path.append(path)
