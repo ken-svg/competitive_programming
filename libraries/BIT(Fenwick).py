@@ -52,5 +52,34 @@ class BIT:
 # def apply(self, l, r): # 半開区間[l, r)の総和を計算
 # self.el[i]: # i番目の要素の現在の値
 
+#BIT(Fenwick Tree)
+class BIT_add: 
+  """ n: 要素数 """
+  """ 加算専用 """
+  def __init__(self, n): # 要素数のみ指定すれば使用可能。演算opを指定しない場合は通常加算となる。
+    self.n = n
+    self.data = [0]*(n+1)
+  
+  def add(self, i, x):
+    data = self.data
+    n = self.n
+    while i <= n:
+      data[i] += x
+      i += i & -i
+      
+  def _obtain(self, i): # sum from 1 to i
+    data = self.data
+    ans = 0
+    while i > 0:
+      ans += data[i]
+      i -= i & -i
+    return ans
+    
+  def apply(self, l, r):
+    return  -self._obtain(l-1) + self._obtain(r-1)
+      
+  def construct(self, A):
+    for i, x in enumerate(A):
+      self.add(i+1,x)  
     
   
