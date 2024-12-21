@@ -1,5 +1,4 @@
 #include <bits/stdc++.h>
-#include <bits/stdc++.h>
 using namespace std;
 
 // 型エイリアス
@@ -79,6 +78,16 @@ DEFINE_TRIPLETS(ll, ld, chr, str, bool);
 #define rep_in(a, A) for(auto a: A)
 
 // コンテナの標準出力をオーバーロード
+template <typename T1, typename T2>
+ostream& operator<<(ostream& os, const pair<T1, T2>& t) {
+    os << "(" << t.first << ", " << t.second << ")";
+    return os;
+}
+template <typename T1, typename T2, typename T3>
+ostream& operator<<(ostream& os, const triplet<T1, T2, T3>& t) {
+    os << "(" << t.first << ", " << t.second << ", " << t.third << ")";
+    return os;
+}
 template <typename T>
 ostream& operator<<(ostream& os, const vector<T>& vec) {
     os << "[";
@@ -175,16 +184,7 @@ ostream& operator<<(ostream& os, const priority_queue<T>& pq) {
     os << "]";
     return os;
 }
-template <typename T1, typename T2>
-ostream& operator<<(ostream& os, const pair<T1, T2>& t) {
-    os << "(" << t.first << ", " << t.second << ")";
-    return os;
-}
-template <typename T1, typename T2, typename T3>
-ostream& operator<<(ostream& os, const triplet<T1, T2, T3>& t) {
-    os << "(" << t.first << ", " << t.second << ", " << t.third << ")";
-    return os;
-}
+
     
 // 標準出力
 template <typename T>
@@ -253,3 +253,9 @@ void print_elements(const T& container, char delimiter = ' ') {
 //   [標準出力]
 //    print(可変長): 標準出力
 //    print_elements(コンテナ, 区切り文字): コンテナ要素の出力 
+
+
+int main(){
+  cout << setprecision(18);
+  //*****
+}
