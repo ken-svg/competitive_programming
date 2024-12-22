@@ -59,6 +59,26 @@ struct triplet {
         return !(*this < other);
     }
 };
+// pair のハッシュ関数を定義
+template <typename T1, typename T2>
+struct hash<pair<T1, T2>> {
+    size_t operator()(const pair<T1, T2>& p) const {
+        // 各要素のハッシュを組み合わせる方法
+        size_t h1 = hash<T1>()(p.first); // first のハッシュ
+        size_t h2 = hash<T2>()(p.second); // second のハッシュ
+        return h1 ^ (h2 << 1) ;  // ハッシュ値を組み合わせる
+    }
+};
+// triplet のハッシュ関数を定義
+template <typename T1, typename T2, typename T3>
+struct hash<triplet<T1, T2, T3>> {
+    size_t operator()(const triplet<T1, T2, T3>& t) const {
+        size_t h1 = hash<T1>()(t.first); // 1つ目の要素
+        size_t h2 = hash<T2>()(t.second); // 2つ目の要素
+        size_t h3 = hash<T3>()(t.third); // 3つ目の要素
+        return h1 ^ (h2 << 1) ^ (h3 << 2);  // ハッシュ値を組み合わせる
+    }
+};
 
 // vectorのエイリアス
 #define DEFINE_VECTOR(A) using v_##A = vector<A>; using vv_##A = vector<vector<A>>; using vvv_##A = vector<vector<vector<A>>>;
@@ -80,9 +100,11 @@ DEFINE_TRIPLETS(ll, ld, chr, str, bool);
 const ll MOD = 998244353;
 #define elif else if
 #define rep(i, n) for(ll i = 0; i < n; i++)
-#define rep_in(a, A) for(auto a: A)
 #define rep_range(i, s, t) for(ll i = s; i < t; i++)
 #define rep_step(i, s, t, b) for(ll i = s; (i - t) * b < 0; i += b)
+#define rep_in(a, A) for(auto a: A)
+#define rep_pair(f, s, A) for(auto [f, s]: A)
+#define rep_triplet(f, s, t, A) for(auto [f, s, t]: A)
 
 // コンテナの標準出力をオーバーロード
 template <typename T1, typename T2>
@@ -218,26 +240,16 @@ ostream& operator<<(ostream& os, const lpque<T>& pq) {
     return os;
 }
 
-    
 // 標準出力
-template <typename T>
-void print_value(const T& value) {
-    cout << value;
-}
-template <typename T1, typename T2>
-void print_value(const pair<T1, T2>& pa) {
-    cout << "(";
-    print_value(pa.first);
-    cout << ", ";
-    print_value(pa.second);
-    cout << ")";
-}
-template <typename... Args>
-void print(Args&&... args) {
-    (print_value(forward<Args>(args)), ...);
+template <typename T, typename... Args>
+void print(T&& first, Args&&... rest) {
+    cout << first;  // 最初の引数を出力
+    if constexpr (sizeof...(rest) > 0) {  // 残りの引数があれば
+        cout << " ";  // スペースを挿入
+        print(forward<Args>(rest)...);  // 残りの引数を再帰的に処理
+    }
     cout << endl;
 }
-
 // 指定文字(delimiter)区切りで標準出力（コンテナのみ）
 template <typename T>
 void print_elements(const T& container, char delimiter = ' ') {
@@ -254,6 +266,25 @@ void print_elements(const T& container, char delimiter = ' ') {
         first = false;  // 最初の要素を過ぎたら区切り文字を挿入する
     }
     cout << endl;  // 最後に改行
+}
+
+// 事前に定義された変数に標準入力
+template <typename... Args>
+void input(Args&... args) {
+    (cin >> ... >> args);
+}
+// 標準入力の一行を指定された型でvectorに格納
+template <typename T>
+vector<T> input_to_vector() {
+    vector<T> result;
+    string line;
+    getline(cin, line);
+    stringstream ss(line);
+    T value;
+    while (ss >> value) {  // 1行の中に空白で区切られた値を読み取る
+        result.push_back(value);
+    }
+    return result;
 }
 
 // コンテナの二分探索
@@ -534,6 +565,23 @@ long long pow(long long a, long long b, const long long m = 0) {
     }
     return result;
 }
+
+// vector<string> を結合する関数
+string join(const vector<string>& vec) {
+    string result;
+    for (const auto& str : vec) {
+        result += str;  // 文字列を追加
+    }
+    return result;
+}
+// vector<char> を結合する関数
+string join(const vector<char>& vec) {
+    string result;
+    for (const auto& ch : vec) {
+        result += ch;  // char を追加
+    }
+    return result;
+}
   
 // 説明
 //  型エイリアス：
@@ -558,19 +606,26 @@ long long pow(long long a, long long b, const long long m = 0) {
 //   MOD = 998244353
 
 //  マクロ：
-//   rep(i, n): for(ll i = 0; i < n; i++)   変数iをとる
-//   rep_range(i, s, t): for(ll i = s; i < t; i++)   sからt-1まで
+//   rep(i, n) for(ll i = 0; i < n; i++)   変数iをとる
+//   rep_range(i, s, t) for(ll i = s; i < t; i++)   sからt-1まで
 //   rep_step(i, s, t, b) for(ll i = s; (i - t) * b < 0; i += b) sから、tの直前まで。stepはb
 //   rep_in(a, A): for(auto a: A)   変数aがコンテナAを走る
-//   elif: else if
+//   rep_pair(f, s, A) for(auto [f, s]: A)
+//   rep_triplet(f, s, t, A) for(auto [f, s, t]: A)
+//   elif else if
 
 //  よく使う関数：
+//   [標準入力]
+//    input(可変長): 標準入力（変数は事前定義）
+//    input_to_vector<T>(): 標準入力の次の改行までで、vector<T>を作る
 //   [標準出力]
 //    print(可変長): 標準出力
 //    print_elements(コンテナ, 区切り文字): コンテナ要素の出力 
 //   [算術演算]
 //    idiv, mod, fdiv: 商, 余り, 小数の除算
 //    pow: べき（オプションで剰余）
+//   [文字列の結合]
+//    join(vector<string or char>)
 //   [二分探索]
 //    biect_left(コンテナ, 文字): 指定値未満の個数
 //    biect_right(コンテナ, 文字): 指定値以下の個数
@@ -586,26 +641,6 @@ long long pow(long long a, long long b, const long long m = 0) {
 //    ・長さ(llで出力)
 //     len(container)
 
-// pair のハッシュ関数を定義
-template <typename T1, typename T2>
-struct hash<pair<T1, T2>> {
-    size_t operator()(const pair<T1, T2>& p) const {
-        // 各要素のハッシュを組み合わせる方法
-        size_t h1 = hash<T1>()(p.first); // first のハッシュ
-        size_t h2 = hash<T2>()(p.second); // second のハッシュ
-        return h1 ^ (h2 << 1);  // ハッシュ値を組み合わせる
-    }
-};
-// triplet のハッシュ関数を定義
-template <typename T1, typename T2, typename T3>
-struct hash<triplet<T1, T2, T3>> {
-    size_t operator()(const triplet<T1, T2, T3>& t) const {
-        size_t h1 = hash<T1>()(t.first); // 1つ目の要素
-        size_t h2 = hash<T2>()(t.second); // 2つ目の要素
-        size_t h3 = hash<T3>()(t.third); // 3つ目の要素
-        return h1 ^ (h2 << 1) ^ (h3 << 2);  // ハッシュ値を組み合わせる
-    }
-};
 
 int main(){
   cout << setprecision(18);
