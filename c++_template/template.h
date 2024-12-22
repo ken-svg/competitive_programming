@@ -29,8 +29,9 @@ struct triplet {
     T3 third;    // 第三の要素
 
     // コンストラクタ
-    triplet(T1 f, T2 s, T3 t) : first(f), second(s), third(t) {}
-
+    triplet(const T1& f, const T2& s, const T3& t)
+        : first(f), second(s), third(t) {}
+    
     // 比較演算子の定義
     bool operator==(const triplet& other) const {
         return first == other.first && second == other.second && third == other.third;
@@ -459,6 +460,10 @@ lpque<typename T::value_type> to_lpque(const T& container) {
     } else result = lpque<typename T::value_type>(container.begin(), container.end());
     return result;
 }
+template <typename T>
+pque<typename T::value_type> to_pque(const T& container) {
+    return to_lpque(container);
+}
 
 // gpque, lpqueの定義用
 template <typename T>
@@ -581,6 +586,26 @@ long long pow(long long a, long long b, const long long m = 0) {
 //    ・長さ(llで出力)
 //     len(container)
 
+// pair のハッシュ関数を定義
+template <typename T1, typename T2>
+struct hash<pair<T1, T2>> {
+    size_t operator()(const pair<T1, T2>& p) const {
+        // 各要素のハッシュを組み合わせる方法
+        size_t h1 = hash<T1>()(p.first); // first のハッシュ
+        size_t h2 = hash<T2>()(p.second); // second のハッシュ
+        return h1 ^ (h2 << 1);  // ハッシュ値を組み合わせる
+    }
+};
+// triplet のハッシュ関数を定義
+template <typename T1, typename T2, typename T3>
+struct hash<triplet<T1, T2, T3>> {
+    size_t operator()(const triplet<T1, T2, T3>& t) const {
+        size_t h1 = hash<T1>()(t.first); // 1つ目の要素
+        size_t h2 = hash<T2>()(t.second); // 2つ目の要素
+        size_t h3 = hash<T3>()(t.third); // 3つ目の要素
+        return h1 ^ (h2 << 1) ^ (h3 << 2);  // ハッシュ値を組み合わせる
+    }
+};
 
 int main(){
   cout << setprecision(18);
