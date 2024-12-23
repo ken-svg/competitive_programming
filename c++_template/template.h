@@ -117,6 +117,21 @@ ostream& operator<<(ostream& os, const triplet<T1, T2, T3>& t) {
     os << "(" << t.first << ", " << t.second << ", " << t.third << ")";
     return os;
 }
+template <typename Tuple, size_t Index = 0>
+void print_tuple(std::ostream& os, const Tuple& t) {
+    if constexpr (Index < std::tuple_size<Tuple>::value) {
+        if (Index > 0) os << ", ";  // 2番目以降の要素にコンマを追加
+        os << std::get<Index>(t);
+        print_tuple<Tuple, Index + 1>(os, t);  // 再帰呼び出し
+    }
+} // helper for tuple
+template <typename... Args>
+ostream& operator<<(std::ostream& os, const std::tuple<Args...>& t) {
+    os << "(";
+    print_tuple(os, t);  // 再帰的にtupleを出力
+    os << ")";
+    return os;
+}
 template <typename T>
 ostream& operator<<(ostream& os, const vector<T>& vec) {
     os << "[";
@@ -524,7 +539,13 @@ long long len(const Container& container) {
     return static_cast<long long>(container.size()); // サイズをll型に変換して返す
 }
 
-// llについて、商、余り、除算、べき
+// ll, ldについて総和
+template <typename Container>
+typename Container::value_type sum(const Container& container) {
+    return accumulate(container.begin(), container.end(), typename Container::value_type(0));
+}
+
+// llについての算術操作
 // 整数の商
 long long idiv(long long a, long long b) {
     return (a >= 0) ? a / b : ((a + 1) / b) - 1;
@@ -565,6 +586,24 @@ long long pow(long long a, long long b, const long long m = 0) {
     }
     return result;
 }
+// 拡張ユークリッド互除法
+tuple<ll, ll, ll> ext_gcd(ll a, ll b){
+  if (b == 0) return {1 * a / abs(a), 0, abs(a)};
+  else {
+    auto [x, y, d] = ext_gcd(b, a % b);
+    return {y, x - y * (a / b), d};
+  }
+} // a * f + b * s = t(gcd)
+// mod逆元
+ll mod_inv(ll x, const ll mod = MOD){
+  auto [x_inv, _, d] = ext_gcd(x, mod);
+  if (d != 1) return 0;
+  else {
+    x_inv %= mod;
+    if (x_inv < 0) x_inv += mod;
+    return x_inv;
+  }
+} // x * x_inv + _ * mod = 1
 
 // vector<string> を結合する関数
 string join(const vector<string>& vec) {
@@ -624,6 +663,8 @@ string join(const vector<char>& vec) {
 //   [算術演算]
 //    idiv, mod, fdiv: 商, 余り, 小数の除算
 //    pow: べき（オプションで剰余）
+//    ext_gcd: 拡張ユークリッド互助法 a * f + b * s = t(gcd>0)となるtuple({f, s, t})
+//    mod_inv: mod逆元
 //   [文字列の結合]
 //    join(vector<string or char>)
 //   [二分探索]
@@ -640,6 +681,8 @@ string join(const vector<char>& vec) {
 //     make_gpque({...}) / make_lpque({...})
 //    ・長さ(llで出力)
 //     len(container)
+//    ・総和
+//     sum(contianer)
 
 
 int main(){
