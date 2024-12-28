@@ -257,11 +257,19 @@ ostream& operator<<(ostream& os, const lpque<T>& pq) {
 
 // 標準出力
 template <typename T, typename... Args>
+void _print(T&& first, Args&&... rest) {
+    cout << first;  // 最初の引数を出力
+    if constexpr (sizeof...(rest) > 0) {  // 残りの引数があれば
+        cout << " ";  // スペースを挿入
+        _print(forward<Args>(rest)...);  // 残りの引数を再帰的に処理
+    }
+}
+template <typename T, typename... Args>
 void print(T&& first, Args&&... rest) {
     cout << first;  // 最初の引数を出力
     if constexpr (sizeof...(rest) > 0) {  // 残りの引数があれば
         cout << " ";  // スペースを挿入
-        print(forward<Args>(rest)...);  // 残りの引数を再帰的に処理
+        _print(forward<Args>(rest)...);  // 残りの引数を再帰的に処理
     }
     cout << endl;
 }
@@ -293,11 +301,15 @@ template <typename T>
 vector<T> input_to_vector() {
     vector<T> result;
     string line;
-    getline(cin, line);
-    stringstream ss(line);
-    T value;
-    while (ss >> value) {  // 1行の中に空白で区切られた値を読み取る
-        result.push_back(value);
+    bool flag = false;
+    while (!flag) {
+      getline(cin, line);
+      stringstream ss(line);
+      T value;
+      while (ss >> value) {  // 1行の中に空白で区切られた値を読み取る
+          result.push_back(value);
+          flag = true;
+      }
     }
     return result;
 }
@@ -687,5 +699,7 @@ string join(const vector<char>& vec) {
 
 int main(){
   cout << setprecision(18);
+  
   //*****
 }
+
