@@ -96,6 +96,11 @@ DEFINE_PAIRS(ll, ld, chr, str, bool);
 #define DEFINE_TRIPLETS(A, B, C, D, E) _DEFINE_TRIPLETS(A, A, B, C, D, E) _DEFINE_TRIPLETS(B, A, B, C, D, E) _DEFINE_TRIPLETS(C, A, B, C, D, E) _DEFINE_TRIPLETS(D, A, B, C, D, E) _DEFINE_TRIPLETS(E, A, B, C, D, E)
 DEFINE_TRIPLETS(ll, ld, chr, str, bool);
 
+//function<A(B)>のエイリアス
+#define _DEFINE_FUNCITONS1(A, B, C, D, E, F) using f_##A##_##B = function<A(B)>; using f_##A##_##C = function<A(C)>; using f_##A##_##D = function<A(D)>; using f_##A##_##E = function<A(E)>; using f_##A##_##F = function<A(F)>;
+#define DEFINE_FUNCITONS1(A, B, C, D, E) _DEFINE_FUNCITONS1(A, A, B, C, D, E) _DEFINE_FUNCITONS1(B, A, B, C, D, E) _DEFINE_FUNCITONS1(C, A, B, C, D, E) _DEFINE_FUNCITONS1(D, A, B, C, D, E) _DEFINE_FUNCITONS1(E, A, B, C, D, E)
+DEFINE_FUNCITONS1(ll, ld, chr, str, bool);
+
 // 定数とマクロ
 const ll MOD = 998244353;
 #define elif else if
@@ -654,6 +659,7 @@ typename Container::value_type sum(const Container& container) {
 //    vvv_(**): vector<vector<vector<**>>>
 //    p_(**1)_(**2): pair<**1, **2>
 //    t_(**1)_(**2)_(**3): triplet<**1, **2, **3>  pairの３つ組版
+//    f_(**1)_(**2): function<**1(**2)>  function (**1) -> (**2)
 //    umap: unordered_map;
 //    uset: unordered_set;
 //    mset: multiset;
