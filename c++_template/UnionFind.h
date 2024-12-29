@@ -9,17 +9,17 @@ public:
     }
 
     // 要素 x が属する連結成分の代表元を返す（経路圧縮あり）
-    int find(int x) {
+    ll find(int x) {
         if (parent[x] < 0) {
-            return x;  // 親が負の値なら、xが代表元（自分自身を親としている）
+            return ll(x);  // 親が負の値なら、xが代表元（自分自身を親としている）
         }
         // 経路圧縮
         parent[x] = find(parent[x]);
-        return parent[x];
+        return ll(parent[x]);
     }
 
     // x と y の連結成分を統合する（ランクによる統合）
-    void merge(int x, int y) {
+    bool merge(int x, int y) {
         int rootX = find(x);
         int rootY = find(y);
 
@@ -33,6 +33,7 @@ public:
                 parent[rootX] = rootY;  // rootX の親を rootY に設定
             }
         }
+        return rootX != rootY;
     }
 
     // x と y が同じ連結成分に属しているかを判定する
@@ -43,9 +44,9 @@ public:
     // 要素 x が属する連結成分のサイズを返す
     int size(int x) {
         int rootX = find(x);
-        return -parent[rootX];  // 親が負の値の場合、その絶対値がサイズになる
+        return ll(-parent[rootX]);  // 親が負の値の場合、その絶対値がサイズになる
     }
 
 private:
-    vector<int> parent;  // 親ノード（負の値の場合、その絶対値が連結成分のサイズ）
+    vector<ll> parent;  // 親ノード（負の値の場合、その絶対値が連結成分のサイズ）
 };
