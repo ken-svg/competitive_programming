@@ -551,12 +551,6 @@ long long len(const Container& container) {
     return static_cast<long long>(container.size()); // サイズをll型に変換して返す
 }
 
-// ll, ldについて総和
-template <typename Container>
-typename Container::value_type sum(const Container& container) {
-    return accumulate(container.begin(), container.end(), typename Container::value_type(0));
-}
-
 // llについての算術操作
 // 整数の商
 long long idiv(long long a, long long b) {
@@ -615,8 +609,7 @@ ll mod_inv(ll x, const ll mod = MOD){
     if (x_inv < 0) x_inv += mod;
     return x_inv;
   }
-} // x * x_inv + _ * mod = 1
-
+} // x * x_inv + _ * mod = 
 // vector<string> を結合する関数
 string join(const vector<string>& vec) {
     string result;
@@ -633,6 +626,50 @@ string join(const vector<char>& vec) {
     }
     return result;
 }
+
+
+// max関数 (可変長引数を取る)
+template <typename T, typename... Args>
+T max(T first, T second, T third, Args... args) {
+    if constexpr (sizeof...(args) > 0) {  // 残りの引数があれば
+        return max(first, max(second, third, args...)); // 再帰的処理
+    }
+    return max(first, max(second, third));
+}
+// max関数 (containerを引数に取る)
+template <typename Container>
+typename Container::value_type max(const Container& container) {
+    return *max_element(container.begin(), container.end());
+}
+
+// min関数 (可変長引数を取る)
+template <typename T, typename... Args>
+T min(T first, T second, T third, Args... args) {
+    if constexpr (sizeof...(args) > 0) {  // 残りの引数があれば
+        return min(first, min(second, third, args...)); // 再帰的処理
+    }
+    return min(first, min(second, third));
+}
+// min関数 (containerを引数に取る)
+template <typename Container>
+typename Container::value_type min(const Container& container) {
+    return *min_element(container.begin(), container.end());
+}
+
+// sum関数 (可変長引数を取る)
+template <typename T, typename... Args>
+T sum(T first, T second, Args... args) {
+    if constexpr (sizeof...(args) > 0) {  // 残りの引数があれば
+        return first + sum(second, args...); // 再帰的処理
+    }
+    return first + second;
+}
+// sum関数 (containerを引数に取る)
+template <typename Container>
+typename Container::value_type sum(const Container& container) {
+    return accumulate(container.begin(), container.end(), typename Container::value_type(0));
+}
+
   
 // 説明
 //  型エイリアス：
@@ -660,7 +697,7 @@ string join(const vector<char>& vec) {
 //   rep(i, n) for(ll i = 0; i < n; i++)   変数iをとる
 //   rep_range(i, s, t) for(ll i = s; i < t; i++)   sからt-1まで
 //   rep_step(i, s, t, b) for(ll i = s; (i - t) * b < 0; i += b) sから、tの直前まで。stepはb
-//   rep_in(a, A): for(auto a: A)   変数aがコンテナAを走る
+//   rep_in(a, A) for(auto a: A)   変数aがコンテナAを走る
 //   rep_pair(f, s, A) for(auto [f, s]: A)
 //   rep_triplet(f, s, t, A) for(auto [f, s, t]: A)
 //   elif else if
@@ -693,8 +730,8 @@ string join(const vector<char>& vec) {
 //     make_gpque({...}) / make_lpque({...})
 //    ・長さ(llで出力)
 //     len(container)
-//    ・総和
-//     sum(contianer)
+//    ・総和、最大、最小
+//     sum/max/min(contianer)
 
 
 int main(){
