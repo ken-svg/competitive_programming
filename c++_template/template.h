@@ -708,7 +708,7 @@ typename Container::value_type sum(const Container& container) {
 //    ・長さ(llで出力)
 //     len(container)
 //    ・総和、最大、最小
-//     sum/max/min(contianer)
+//     sum/max/min(container)
 
 int main(){
   cout << setprecision(18);
