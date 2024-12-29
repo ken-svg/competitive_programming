@@ -356,63 +356,6 @@ ll bisect_right(const map<K, V>& m, const K& key) {
     return distance(m.begin(), it);  // 以下のものの数 = upper_boundの位置
 }
 
-// vectorのソート
-// sort_vector 関数：単純ソート
-template <typename T>
-void sort_vector(vector<T>& vec, bool reverse = false) {
-    if (reverse) {
-      sort(vec.begin(), vec.end(), greater<T>());
-    } else {
-      sort(vec.begin(), vec.end());
-    }
-}
-// sort_by_key 関数：key関数に基づいてソート
-template <typename T>
-void sort_by_key(vector<T>& vec, bool reverse = false, ll (*key)(const T&) = nullptr) {
-    if (key) {
-        if (reverse) {
-            // 降順ソート
-            sort(vec.begin(), vec.end(), [key](const T& a, const T& b) {
-                return key(a) > key(b);  // key関数の結果で降順
-            });
-        } else {
-            // 昇順ソート
-            sort(vec.begin(), vec.end(), [key](const T& a, const T& b) {
-                return key(a) < key(b);  // key関数の結果で昇順
-            });
-        }
-    } else {
-        // keyがnullptrの場合（通常の昇順ソート）
-        if (reverse) {
-            sort(vec.begin(), vec.end(), greater<T>());
-        } else {
-            sort(vec.begin(), vec.end());
-        }
-    }
-}
-// sort_by_cmp 関数：cmp関数に基づいてソート
-template <typename T>
-void sort_by_cmp(vector<T>& vec, bool reverse = false, bool (*cmp)(const T&, const T&) = nullptr) {
-    if (cmp) {
-        if (reverse) {
-            // 降順ソート
-            sort(vec.begin(), vec.end(), [cmp](const T& a, const T& b) {
-                return cmp(b, a);  // cmp関数を逆にして降順
-            });
-        } else {
-            // 昇順ソート
-            sort(vec.begin(), vec.end(), cmp);
-        }
-    } else {
-        // cmpがnullptrの場合（通常の昇順ソート）
-        if (reverse) {
-            sort(vec.begin(), vec.end(), greater<T>());
-        } else {
-            sort(vec.begin(), vec.end());
-        }
-    }
-}
-
 // 各コンテナへの変換
 template <typename T>
 vector<typename T::value_type> to_vector(const T& container) {
@@ -521,6 +464,34 @@ lpque<typename T::value_type> to_lpque(const T& container) {
 template <typename T>
 pque<typename T::value_type> to_pque(const T& container) {
     return to_lpque(container);
+}
+
+// sort_vector 関数：単純ソート
+template <typename T>
+void sort_vector(vector<T>& vec, bool reverse = false) {
+    if (reverse) {
+      sort(vec.begin(), vec.end(), greater<T>());
+    } else {
+      sort(vec.begin(), vec.end());
+    }
+}
+// sort_by_cmp 関数：比較関数によるソート
+template <typename T>
+void sort_by_cmp(vector<T>& vec, function<bool(T, T)> cmp) {
+    // ソート基準を決定するラムダ式
+    sort(vec.begin(), vec.end(), cmp);
+}
+// sort_by_key 関数：key関数によるソート
+template <typename T, typename V>
+void sort_by_key(vector<T>& vec, function<V(T)> key) {
+    // ソート基準を決定するラムダ式
+    auto comparator = [key](T a, T b) {
+        V key_a = key(a);
+        V key_b = key(b);
+        return key_a < key_b;  // 昇順
+    };
+    // ソート
+    sort(vec.begin(), vec.end(), comparator);
 }
 
 // gpque, lpqueの定義用
@@ -721,9 +692,9 @@ typename Container::value_type sum(const Container& container) {
 //    biect_right(コンテナ, 文字): 指定値以下の個数
 //   [コンテナ関係]
 //    ・ソート
-//     sort_vector(vector, reverse)
-//     sort_by_key(vector, reverse, key)  ** ll key(T a)「aの大きさ」
-//     sort_by_cmp(vector, reverse, cmp)  ** bool cmp(T a, T b)「aがbより大きい」
+//     sort_vector(vector, reverse) *reverse = false(デフォルト) trueのとき降順
+//     sort_by_key(vector, key)  * V key(T a) | key(a) < key(b) ⇄ a < b
+//     sort_by_cmp(vector, cmp)  * bool cmp(T a, T b) | cmp(a, b) ⇄ a < b
 //    ・コンテナ変換
 //     to_{vector/set/mset/uset/umset/deque/gpque/lpqueのいずれか}(container) 
 //    ・lpque, gpque の作成
@@ -733,10 +704,8 @@ typename Container::value_type sum(const Container& container) {
 //    ・総和、最大、最小
 //     sum/max/min(contianer)
 
-
 int main(){
   cout << setprecision(18);
   
   //*****
 }
-
