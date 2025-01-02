@@ -8,7 +8,6 @@
 class MaxFlow {
 private:
     int V; // 頂点数
-
     vector<vector<int>> adj; // 隣接リスト (辺のインデックスを持つ)
     vector<int> level; // レベルグラフ用
     vector<int> start; // DFS用開始点
