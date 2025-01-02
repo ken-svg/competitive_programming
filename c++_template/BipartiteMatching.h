@@ -1,3 +1,6 @@
+// 二部グラフの最大マッチングをO(E^(3/2))で行う。
+// 左側、右側の頂点数をそれぞれ与える。頂点の番号付けは左右独立。
+// add_edge(左側、右側)で辺を追加し、max_matching()で最大マッチ数を計算。get_matching()で具体的なマッチングを返す。
 class BipartiteMatching {
 private:
     int n, m; // Sizes of left and right sets
