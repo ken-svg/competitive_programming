@@ -261,6 +261,10 @@ public:
 
     // 全ての辺の情報を取得
     vector<vector<ll>> get_edges() {
-        return edges;
+        vector<vector<ll>> output_edges;
+        for (int j = 0; j < edges.size(); j += 2){
+          output_edges.push_back(edges[j]);
+        }
+        return output_edges;
     }
 };
