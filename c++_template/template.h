@@ -640,6 +640,7 @@ long double to_ld(char c) {
     return static_cast<long double>(c - '0');
 }
 
+
 // max関数 (可変長引数を取る)
 template <typename T, typename... Args>
 T max(T first, T second, T third, Args... args) {
@@ -680,6 +681,34 @@ T sum(T first, T second, Args... args) {
 template <typename Container>
 typename Container::value_type sum(const Container& container) {
     return accumulate(container.begin(), container.end(), typename Container::value_type(0));
+}
+
+// 一重ベクターを生成する関数
+template <typename T>
+vector<T> make_vector(long long size, T initial_value) {
+    if (size < 0) {
+        throw invalid_argument("Size cannot be negative");
+    }
+    return vector<T>(static_cast<size_t>(size), initial_value);
+}
+// 二重ベクターを生成する関数
+template <typename T>
+vector<vector<T>> make_vector(long long rows, long long cols, T initial_value) {
+    if (rows < 0 || cols < 0) {
+        throw invalid_argument("Rows and cols cannot be negative");
+    }
+    return vector<vector<T>>(static_cast<size_t>(rows), 
+                             vector<T>(static_cast<size_t>(cols), initial_value));
+}
+// 三重ベクターを生成する関数
+template <typename T>
+vector<vector<vector<T>>> make_vector(long long depth, long long rows, long long cols, T initial_value) {
+    if (depth < 0 || rows < 0 || cols < 0) {
+        throw invalid_argument("Depth, rows, and cols cannot be negative");
+    }
+    return vector<vector<vector<T>>>(static_cast<size_t>(depth), 
+                                      vector<vector<T>>(static_cast<size_t>(rows), 
+                                                        vector<T>(static_cast<size_t>(cols), initial_value)));
 }
 
 // 説明
@@ -746,10 +775,15 @@ typename Container::value_type sum(const Container& container) {
 //     len(container)
 //    ・総和、最大、最小
 //     sum/max/min(container)
+//    ・一定値ベクトルの生成
+//     make_vector<T>(size, T initial) 一次元
+//     make_vector<T>(row, col, T initial) 二次元
+//     make_vector<T>(depth, row, col, T initial) 三次元
 
 int main(){
     cout << setprecision(18);
+  
+    / ***
 
-    /*****
-
+    return 0;
 }
