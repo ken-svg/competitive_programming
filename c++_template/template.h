@@ -683,7 +683,7 @@ typename Container::value_type sum(const Container& container) {
     return accumulate(container.begin(), container.end(), typename Container::value_type(0));
 }
 
-// 一重ベクターを生成する関数
+// vectorを一定値で生成する関数
 template <typename T>
 vector<T> make_vector(long long size, T initial_value) {
     if (size < 0) {
@@ -691,7 +691,6 @@ vector<T> make_vector(long long size, T initial_value) {
     }
     return vector<T>(static_cast<size_t>(size), initial_value);
 }
-// 二重ベクターを生成する関数
 template <typename T>
 vector<vector<T>> make_vector(long long rows, long long cols, T initial_value) {
     if (rows < 0 || cols < 0) {
@@ -700,7 +699,6 @@ vector<vector<T>> make_vector(long long rows, long long cols, T initial_value) {
     return vector<vector<T>>(static_cast<size_t>(rows), 
                              vector<T>(static_cast<size_t>(cols), initial_value));
 }
-// 三重ベクターを生成する関数
 template <typename T>
 vector<vector<vector<T>>> make_vector(long long depth, long long rows, long long cols, T initial_value) {
     if (depth < 0 || rows < 0 || cols < 0) {
@@ -709,6 +707,32 @@ vector<vector<vector<T>>> make_vector(long long depth, long long rows, long long
     return vector<vector<vector<T>>>(static_cast<size_t>(depth), 
                                       vector<vector<T>>(static_cast<size_t>(rows), 
                                                         vector<T>(static_cast<size_t>(cols), initial_value)));
+}
+
+// pair, triplet, tupleの展開
+template <typename T1, typename T2>
+void unfold(T1& f, T2& s, pair<T1, T2>& pr) {
+  f = pr.first;
+  s = pr.second;
+}
+template <typename T1, typename T2, typename T3>
+void unfold(T1& f, T2& s, T3& t, triplet<T1, T2, T3>& tr) {
+  f = tr.first;
+  s = tr.second;
+  t = tr.third;
+}
+template <typename T1, typename T2, typename T3>
+void unfold(T1& f, T2& s, T3& t, tuple<T1, T2, T3>& tr) {
+  f = get<0>(tr);
+  s = get<1>(tr);
+  t = get<2>(tr);
+}
+template <typename T1, typename T2, typename T3, typename T4>
+void unfold(T1& f, T2& s, T3& t, T4& q, tuple<T1, T2, T3, T4>& tr) {
+  f = get<0>(tr);
+  s = get<1>(tr);
+  t = get<2>(tr);
+  q = get<3>(tr);
 }
 
 // 説明
@@ -779,11 +803,13 @@ vector<vector<vector<T>>> make_vector(long long depth, long long rows, long long
 //     make_vector<T>(size, T initial) 一次元
 //     make_vector<T>(row, col, T initial) 二次元
 //     make_vector<T>(depth, row, col, T initial) 三次元
+//    ・pair, triplet, tupleの展開
+//     unfold(f, s, (t, q), pair/triplet/tuple) 
 
 int main(){
     cout << setprecision(18);
-  
-    / ***
+    
+    // ***
 
     return 0;
 }
