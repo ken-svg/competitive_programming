@@ -603,6 +603,42 @@ string join(const vector<char>& vec) {
     return result;
 }
 
+// 文字列を long long に変換する関数
+long long to_ll(const string& str) {
+    long long result;
+    stringstream ss(str);
+
+    if (!(ss >> result)) {
+        throw invalid_argument("Invalid input for long long conversion");
+    }
+
+    return result;
+}
+// 1文字を long double に変換する関数
+long double to_ll(char c) {
+    if (!isdigit(c)) {
+        throw invalid_argument("Input character is not a valid digit");
+    }
+    return static_cast<long long>(c - '0');
+}
+// 文字列を long double に変換する関数
+long double to_ld(const string& str) {
+    long double result;
+    stringstream ss(str);
+
+    if (!(ss >> result)) {
+        throw invalid_argument("Invalid input for long double conversion");
+    }
+
+    return result;
+}
+// 1文字を long double に変換する関数
+long double to_ld(char c) {
+    if (!isdigit(c)) {
+        throw invalid_argument("Input character is not a valid digit");
+    }
+    return static_cast<long double>(c - '0');
+}
 
 // max関数 (可変長引数を取る)
 template <typename T, typename... Args>
@@ -646,7 +682,6 @@ typename Container::value_type sum(const Container& container) {
     return accumulate(container.begin(), container.end(), typename Container::value_type(0));
 }
 
-  
 // 説明
 //  型エイリアス：
 //   ll: long long
@@ -692,7 +727,9 @@ typename Container::value_type sum(const Container& container) {
 //    ext_gcd: 拡張ユークリッド互助法 a * f + b * s = t(gcd>0)となるtuple({f, s, t})
 //    mod_inv: mod逆元
 //   [文字列の結合]
-//    join(vector<string or char>)
+//    join(vector<string or char>) 結合
+//    to_ll(char or string) 整数への変換
+//    to_ld(char or string) 小数への変換
 //   [二分探索]
 //    biect_left(コンテナ, 文字): 指定値未満の個数
 //    biect_right(コンテナ, 文字): 指定値以下の個数
@@ -711,7 +748,8 @@ typename Container::value_type sum(const Container& container) {
 //     sum/max/min(container)
 
 int main(){
-  cout << setprecision(18);
-  
-  //*****
+    cout << setprecision(18);
+
+    /*****
+
 }
