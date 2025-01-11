@@ -682,6 +682,22 @@ template <typename Container>
 typename Container::value_type sum(const Container& container) {
     return accumulate(container.begin(), container.end(), typename Container::value_type(0));
 }
+// 全てtrueか
+bool all_true(vector<bool> vec) {
+  bool ans = true;
+  for (bool tf : vec) {
+    ans &= tf;
+  }
+  return ans;
+}
+// 少なくとも一つtrueか
+bool any_true(vector<bool> vec) {
+  bool ans = false;
+  for (bool tf : vec) {
+    ans |= tf;
+  }
+  return ans;
+}
 
 // vectorを一定値で生成する関数
 template <typename T>
@@ -799,6 +815,8 @@ void unfold(T1& f, T2& s, T3& t, T4& q, tuple<T1, T2, T3, T4>& tr) {
 //     len(container)
 //    ・総和、最大、最小
 //     sum/max/min(container)
+//    ・全てtrue, 少なくとも一つtrue
+//     all_true(vector<bool>), any_true(vector<bool>)
 //    ・一定値ベクトルの生成
 //     make_vector<T>(size, T initial) 一次元
 //     make_vector<T>(row, col, T initial) 二次元
