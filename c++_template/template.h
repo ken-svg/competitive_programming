@@ -533,7 +533,7 @@ long long idiv(long long a, long long b) {
     return (a >= 0) ? a / b : ((a + 1) / b) - 1;
 }
 // 最小非負の余り
-long long mod(long long a, long long b = MOD) {
+long long imod(long long a, long long b = MOD) {
     long long r = a % b;
     return r < 0 ? r + b : r;
 }
@@ -791,7 +791,7 @@ void unfold(T1& f, T2& s, T3& t, T4& q, tuple<T1, T2, T3, T4>& tr) {
 //    print(可変長): 標準出力
 //    print_elements(コンテナ, 区切り文字): コンテナ要素の出力 
 //   [算術演算]
-//    idiv, mod, fdiv: 商, 余り, 小数の除算
+//    idiv, imod, fdiv: 商, 余り, 小数の除算
 //    pow: べき（オプションで剰余）
 //    ext_gcd: 拡張ユークリッド互助法 a * f + b * s = t(gcd>0)となるtuple({f, s, t})
 //    mod_inv: mod逆元
