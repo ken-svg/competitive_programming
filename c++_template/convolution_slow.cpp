@@ -128,3 +128,38 @@ vector<T> convolution(vector<vector<T>>& convoluted_lists) {
     
     return vector<T>(fft_res.begin(), fft_res.begin() + res_size);
 }
+
+
+
+/* 以下、root情報を作成するための関数 */
+int main() {
+    ll mod = 998244353;
+    vector<unsigned long long> root = {15311432};
+    rep(i, 23) {
+        ll r_last = root[root.size() - 1];
+        root.push_back((r_last * r_last) % mod);
+    }
+    reverse(root.begin(), root.end());
+    
+    vector<unsigned long long> root_inv = {};
+    rep_in(a, root) {
+        root_inv.push_back(mod_inv(a, mod));
+    }
+    
+    ll base = 1;
+    vector<unsigned long long> rate2 = {};
+    rep(i, 20) {
+        rate2.push_back(base * root[i + 3] % mod);
+        base *= root_inv[i + 3];
+        base %= mod;
+    }
+    vector<unsigned long long> rate2_inv = {};
+    rep_in(a, rate2) {
+        rate2_inv.push_back(mod_inv(a, mod));
+    }
+    
+    print(root);
+    print(root_inv);
+    print(rate2);
+    print(rate2_inv);
+}
