@@ -1,4 +1,6 @@
-const unsigned long long mod = 998244353;
+const unsigned long long mod = 998244353ULL;
+const unsigned long long mod2 = (mod * mod) << 2;
+
 const vector<unsigned long long> root = {1, 998244352, 911660635, 372528824, 929031873, 452798380, 922799308, 781712469, 476477967, 166035806, 258648936, 584193783, 63912897, 350007156, 666702199, 968855178, 629671588, 24514907, 996173970, 363395222, 565042129, 733596141, 267099868, 15311432};
 const vector<unsigned long long> root_inv = {1, 998244352, 86583718, 509520358, 337190230, 87557064, 609441965, 135236158, 304459705, 685443576, 381598368, 335559352, 129292727, 358024708, 814576206, 708402881, 283043518, 3707709, 121392023, 704923114, 950391366, 428961804, 382752275, 469870224};
 const vector<unsigned long long> rate2 = {372528824, 337190230, 454590761, 816400692, 578227951, 180142363, 83780245, 6597683, 70046822, 623238099, 183021267, 402682409, 631680428, 344509872, 689220186, 365017329, 774342554, 729444058, 102986190, 128751033};
@@ -27,19 +29,19 @@ void fft(vector<unsigned long long> &a) {
             unsigned long long rot3 = (rot * rot2) % mod;
             for (size_t i = 0; i < L; i++) {
                 unsigned long long p0 = a[offset + i];
-                unsigned long long p1 = (a[offset + i + L] * rot) % mod;
-                unsigned long long p2 = (a[offset + i + L * 2] * rot2) % mod;
-                unsigned long long p3 = (a[offset + i + L * 3] * rot3) % mod;
+                unsigned long long p1 = a[offset + i + L] * rot;
+                unsigned long long p2 = a[offset + i + L * 2] * rot2;
+                unsigned long long p3 = a[offset + i + L * 3] * rot3;
                   
                 unsigned long long t0 = p0 + p2;
                 unsigned long long t1 = p1 + p3;
-                unsigned long long t2 = p0 + (mod - p2);
-                unsigned long long t3 = (root[2] * (p1 + (mod - p3))) % mod;
+                unsigned long long t2 = p0 + (mod2 - p2);
+                unsigned long long t3 = root[2] * ((p1 + (mod2 - p3)) % mod);
                   
                 a[offset + i] = (t0 + t1) % mod;
-                a[offset + i + L] = (t0 + (2 * mod - t1)) % mod;
+                a[offset + i + L] = (t0 + (mod2 - t1)) % mod;
                 a[offset + i + 2 * L] = (t2 + t3) % mod;
-                a[offset + i + 3 * L] = (t2 + (mod - t3)) % mod;
+                a[offset + i + 3 * L] = (t2 + (mod2 - t3)) % mod;
             }
             rot *= rate2[countr_zero(j + 1)];
             rot %= mod;
@@ -67,7 +69,7 @@ void ifft(vector<unsigned long long> &a) {
               unsigned long long t0 = s0 + s1;
               unsigned long long t2 = s2 + s3;
               unsigned long long t1 = s0 + (mod - s1);
-              unsigned long long t3 = root_inv[2] * (s2 + (mod - s3)) % mod;
+              unsigned long long t3 = (root_inv[2] * (s2 + (mod - s3))) % mod;
               
               a[offset + i] = (t0 + t2) % mod;
               a[offset + i + L] = (t1 + t3) * irot % mod;
@@ -98,7 +100,6 @@ vector<T> convolution(vector<vector<T>>& convoluted_lists) {
         res_size += a.size() - 1;
     }
     size_t total_size = 1 << (64 - countl_zero(res_size - 1));
-    // print(total_size, countl_zero(res_size - 1), res_size);
     
     vector<T>& first = convoluted_lists[0];
     vector<unsigned long long> fft_res(total_size, 0);
