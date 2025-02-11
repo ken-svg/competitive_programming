@@ -1,4 +1,4 @@
-// total_length <= 2^22
+// total_length <= 2^23
 const unsigned long long mod = 998244353ULL;
 const unsigned long long mod2 = (mod * mod) << 2;
 
@@ -8,7 +8,7 @@ const vector<unsigned long long> rate2 = {372528824, 337190230, 454590761, 81640
 const vector<unsigned long long> rate2_inv = {509520358, 929031873, 170256584, 839780419, 282974284, 395914482, 444904435, 72135471, 638914820, 66769500, 771127074, 985925487, 262319669, 262341272, 625870173, 768022760, 859816005, 914661783, 430819711, 272774365, 530924681};
 
 /* 
-// total_length <= 2^25
+// total_length <= 2^26
 const unsigned long long mod = 469762049ULL;
 const unsigned long long mod2 = (mod * mod) << 2;
 
@@ -149,8 +149,13 @@ vector<T> convolution(vector<vector<T>>& convoluted_lists) {
 /* 以下、root情報を作成するための関数 */
 int main() {
     ll mod = 998244353;
-    vector<unsigned long long> root = {15311432};
-    rep(i, 23) {
+    ll r = pow(3, 119, mod);
+    //print(pow(3, 7 << 26, mod));
+    
+    ll c = 23;
+    // print(r);
+    vector<unsigned long long> root = {r};
+    rep(i, c) {
         ll r_last = root[root.size() - 1];
         root.push_back((r_last * r_last) % mod);
     }
@@ -163,7 +168,7 @@ int main() {
     
     ll base = 1;
     vector<unsigned long long> rate2 = {};
-    rep(i, 21) {
+    rep(i, c - 2) {
         rate2.push_back(base * root[i + 3] % mod);
         base *= root_inv[i + 3];
         base %= mod;
