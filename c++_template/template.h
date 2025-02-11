@@ -568,8 +568,10 @@ long long pow(long long a, long long b, const long long m = 0) {
     }
     return result;
 }
+
 // 拡張ユークリッド互除法
-tuple<ll, ll, ll> ext_gcd(ll a, ll b){
+template <typename T>
+tuple<T, T, T> ext_gcd(T a, T b){
   if (b == 0) return {1 * a / abs(a), 0, abs(a)};
   else {
     auto [x, y, d] = ext_gcd(b, a % b);
@@ -577,7 +579,8 @@ tuple<ll, ll, ll> ext_gcd(ll a, ll b){
   }
 } // a * f + b * s = t(gcd)
 // mod逆元
-ll mod_inv(ll x, const ll mod = MOD){
+template <typename T>
+T mod_inv(T x, const T mod = MOD){
   auto [x_inv, _, d] = ext_gcd(x, mod);
   if (d != 1) return 0;
   else {
@@ -585,7 +588,8 @@ ll mod_inv(ll x, const ll mod = MOD){
     if (x_inv < 0) x_inv += mod;
     return x_inv;
   }
-} // x * x_inv + _ * mod = 
+}
+
 // vector<string> を結合する関数
 string join(const vector<string>& vec) {
     string result;
