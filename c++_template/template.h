@@ -295,6 +295,11 @@ void print_elements(const T& container, char delimiter = ' ') {
     }
     cout << endl;  // 最後に改行
 }
+template <typename T>
+void print_one(T a) {
+    cout << a << endl;
+    return;
+}
 
 // 事前に定義された変数に標準入力
 template <typename... Args>
@@ -794,6 +799,7 @@ void unfold(T1& f, T2& s, T3& t, T4& q, tuple<T1, T2, T3, T4>& tr) {
 //   [標準出力]
 //    print(可変長): 標準出力
 //    print_elements(コンテナ, 区切り文字): コンテナ要素の出力 
+//    print_one(入力は一つ): 入力を一つだけ標準出力し、改行する
 //   [算術演算]
 //    idiv, imod, fdiv: 商, 余り, 小数の除算
 //    pow: べき（オプションで剰余）
