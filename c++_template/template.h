@@ -760,6 +760,14 @@ void unfold(T1& f, T2& s, T3& t, T4& q, tuple<T1, T2, T3, T4>& tr) {
   q = get<3>(tr);
 }
 
+chrono::system_clock::time_point clock_start() {
+    return chrono::system_clock::now();
+}
+long double get_elapsed(chrono::system_clock::time_point clock_start) {
+    chrono::duration<long double, std::milli> elapsed = chrono::system_clock::now() - clock_start;
+    return elapsed.count();
+}
+
 // 説明
 //  型エイリアス：
 //   ll: long long
@@ -833,6 +841,9 @@ void unfold(T1& f, T2& s, T3& t, T4& q, tuple<T1, T2, T3, T4>& tr) {
 //     make_vector<T>(depth, row, col, T initial) 三次元
 //    ・pair, triplet, tupleの展開
 //     unfold(f, s, (t, q), pair/triplet/tuple) 
+//   [計時]
+//    clock_start() タイマを開始し、開始時点の情報を返す(get_elapsedに入力するための情報)
+//    get_elapsed(chrono::system_clock::time_point clock_start) clock_startからの経過時間（msec）を取得
 
 int main(){
     cout << setprecision(18);
