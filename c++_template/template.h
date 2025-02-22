@@ -735,32 +735,6 @@ vector<vector<vector<T>>> make_vector(long long depth, long long rows, long long
                                                         vector<T>(static_cast<size_t>(cols), initial_value)));
 }
 
-// pair, triplet, tupleの展開
-template <typename T1, typename T2>
-void unfold(T1& f, T2& s, pair<T1, T2>& pr) {
-  f = pr.first;
-  s = pr.second;
-}
-template <typename T1, typename T2, typename T3>
-void unfold(T1& f, T2& s, T3& t, triplet<T1, T2, T3>& tr) {
-  f = tr.first;
-  s = tr.second;
-  t = tr.third;
-}
-template <typename T1, typename T2, typename T3>
-void unfold(T1& f, T2& s, T3& t, tuple<T1, T2, T3>& tr) {
-  f = get<0>(tr);
-  s = get<1>(tr);
-  t = get<2>(tr);
-}
-template <typename T1, typename T2, typename T3, typename T4>
-void unfold(T1& f, T2& s, T3& t, T4& q, tuple<T1, T2, T3, T4>& tr) {
-  f = get<0>(tr);
-  s = get<1>(tr);
-  t = get<2>(tr);
-  q = get<3>(tr);
-}
-
 chrono::system_clock::time_point clock_start() {
     return chrono::system_clock::now();
 }
@@ -840,8 +814,6 @@ long double get_elapsed(chrono::system_clock::time_point clock_start) {
 //     make_vector<T>(size, T initial) 一次元
 //     make_vector<T>(row, col, T initial) 二次元
 //     make_vector<T>(depth, row, col, T initial) 三次元
-//    ・pair, triplet, tupleの展開
-//     unfold(f, s, (t, q), pair/triplet/tuple) 
 //   [計時]
 //    clock_start() タイマを開始し、開始時点の情報を返す(get_elapsedに入力するための情報)
 //    get_elapsed(chrono::system_clock::time_point clock_start) clock_startからの経過時間（msec）を取得
