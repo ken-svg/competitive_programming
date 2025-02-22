@@ -4,6 +4,7 @@ using namespace std;
 // 型エイリアス
 using str = string;
 using chr = char;
+using ull = unsigned long long;
 using ll = long long;
 using ld = long double;
 template <typename K, typename V>
