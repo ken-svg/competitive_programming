@@ -819,6 +819,8 @@ long double get_elapsed(chrono::system_clock::time_point clock_start) {
 //    get_elapsed(chrono::system_clock::time_point clock_start) clock_startからの経過時間（msec）を取得
 
 int main(){
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
     cout << setprecision(18);
     
     // ***
