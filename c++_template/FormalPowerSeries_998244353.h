@@ -230,3 +230,56 @@ vector<T> FPS_log(vector<T>& a) {
     ans_diff.resize(a.size() - 1);
     return FPS_integral(ans_diff);
 }
+
+template <typename T>
+vector<T> FPS_exp(vector<T>& a) {
+    assert(a[0] == 0);
+    vector<unsigned long long> a_ull = _conv_to_ull(a);
+    a_ull.resize(_next_pow2(a.size()), 0);
+    
+    vector<unsigned long long> ans = {1ULL};
+    while (ans.size() < a.size()) {
+        vector<unsigned long long> ans_copy(ans.begin(), ans.end());
+        ans_copy.resize(ans.size() * 2, 0);
+        
+        vector<unsigned long long> ans_log = FPS_log(ans_copy);
+        vector<unsigned long long> pre(a_ull.begin() + ans.size(), a_ull.begin() + ans.size() * 2);
+        for (int i = 0; i < pre.size(); i++) {
+            pre[i] += mod - ans_log[i + ans.size()];
+            pre[i] %= mod;
+        }
+        vector<unsigned long long> ans_ext = FPS_multiply(ans, pre);
+        ans.insert(ans.end(), ans_ext.begin(), ans_ext.begin() + ans.size());
+    }
+    vector<T> ans_T(ans.begin(), ans.begin() + a.size()); 
+    return ans_T;
+}
+
+template <typename T>
+vector<T> FPS_sqrt(vector<T>& a) {
+    assert(a[0] == 1);
+    vector<unsigned long long> a_ull = _conv_to_ull(a);
+    a_ull.resize(_next_pow2(a.size()), 0);
+    
+    long long mod_ll = static_cast<long long>(mod);
+    long long inv_2 = mod_inv(2LL, mod_ll);
+    
+    vector<unsigned long long> ans = {1ULL};
+    while (ans.size() < a.size()) {
+        vector<unsigned long long> ans_copy(ans.begin(), ans.end());
+        ans_copy.resize(ans.size() * 2, 0);
+        
+        vector<unsigned long long> ans_inv = FPS_inv(ans_copy);
+        vector<unsigned long long> a_now(a_ull.begin(),a_ull.begin() + ans_copy.size());
+        
+        vector<unsigned long long> ans_pre = FPS_multiply(ans_inv, a_now);
+        vector<unsigned long long> ans_ext(ans_pre.begin() + ans.size(), ans_pre.begin() + ans.size() * 2);
+        for (auto& v: ans_ext) {
+            v *= inv_2;
+            v %= mod;
+        }
+        ans.insert(ans.end(), ans_ext.begin(), ans_ext.end());
+    }
+    vector<T> ans_T(ans.begin(), ans.begin() + a.size()); 
+    return ans_T;
+}
