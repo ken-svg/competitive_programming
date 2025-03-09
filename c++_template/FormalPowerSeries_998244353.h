@@ -415,3 +415,48 @@ vector<T> FPS_sqrt(vector<T>& a) {
     vector<T> ans_T(ans.begin(), ans.begin() + a.size()); 
     return ans_T;
 }
+
+// 任意のFPSを入力できる。解がないときは{mod+1}を返す。
+template <typename T>
+vector<T> FPS_sqrt_with_reshape(vector<T>& a) {
+    T first = mod + 1;
+    int first_pos = -1;
+    for (int i = 0; i < a.size(); i++) {
+        if (a[i] % mod != 0){
+            first_pos = i;
+            first = a[i] % mod;
+            break;
+        }
+    }
+    if (first_pos == -1) {
+        vector<T> ans(a.size(), 0);
+        return ans;
+    }
+    
+    long long r_first = mod_sqrt(static_cast<long long>(first), static_cast<long long>(mod));
+    if (r_first == -1 || first_pos % 2 != 0) {
+        return {mod + 1};
+    }
+    
+    T first_inv = static_cast<T>(mod_inv(static_cast<long long>(first), static_cast<long long>(mod)));
+    vector<T> a_shaped(a.begin() + first_pos, a.end());
+    rep_in(&v, a_shaped) {
+        v *= first_inv;
+        v %= mod;
+    }
+    
+    vector<T> r_shaped = FPS_sqrt(a_shaped);
+    vector<T> r(first_pos / 2, 0);
+    r.insert(r.end(), r_shaped.begin(), r_shaped.end());
+    
+    T r_first_T = static_cast<T>(r_first);
+    rep_in(&a, r) {
+        a *= r_first_T;
+        a %= mod;
+    }
+    
+    r.resize(a.size(), 0);
+    
+    return r;
+    
+}
