@@ -596,6 +596,42 @@ T mod_inv(T x, const T mod = MOD){
   }
 }
 
+// xが平方剰余なら\sqrt(x)をひとつ返す。平方剰余でないなら-1を返す。
+// Tonelli Shanksのアルゴリズム O(log^2 mod)
+long long mod_sqrt(long long x, long long mod) {
+    
+
+    if (x == 0 || mod == 2) return x;
+    
+    assert(mod % 2 == 1 & mod >= 3);
+    x = (x + mod * mod) % mod;
+    if (pow(x, (mod - 1) / 2, mod) % mod == mod - 1) return -1;
+    
+    size_t ct2 = countr_zero(static_cast<unsigned long long>(mod - 1));
+    size_t res = (mod - 1) >> ct2;
+    
+    long long d = 2;
+    while (pow(d, (mod - 1) / 2, mod) % mod == 1) {
+        d += 1;
+    }
+    long long A = pow(x, res, mod);
+    long long R = pow(x, (res + 1) / 2, mod);
+    long long D = pow(d, res, mod);
+    
+    long long D_aux = D;
+    for (int i = 1; i < ct2; i++) {
+        if (pow(A, 1 << (ct2 - 1 - i), mod) % mod != 1) {
+            A *= (D_aux * D_aux) % mod;
+            A %= mod;
+            R *= D_aux;
+            R %= mod;
+        }
+        D_aux = (D_aux * D_aux) % mod;
+    }
+    
+    return R % mod;
+}
+
 // vector<string> を結合する関数
 string join(const vector<string>& vec) {
     string result;
@@ -788,6 +824,7 @@ long double get_elapsed(chrono::system_clock::time_point clock_start) {
 //    pow: べき（オプションで剰余）
 //    ext_gcd: 拡張ユークリッド互助法 a * f + b * s = t(gcd>0)となるtuple({f, s, t})
 //    mod_inv: mod逆元
+//    mod_sqrt : xが平方剰余なら\sqrt(x)をひとつ返す。平方剰余でないなら-1を返す。
 //   [文字列の結合]
 //    join(vector<string or char>) 結合
 //    to_ll(char or string) 整数への変換
@@ -817,13 +854,3 @@ long double get_elapsed(chrono::system_clock::time_point clock_start) {
 //   [計時]
 //    clock_start() タイマを開始し、開始時点の情報を返す(get_elapsedに入力するための情報)
 //    get_elapsed(chrono::system_clock::time_point clock_start) clock_startからの経過時間（msec）を取得
-
-int main(){
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
-    cout << setprecision(18);
-    
-    // ***
-
-    return 0;
-}
