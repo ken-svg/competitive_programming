@@ -854,3 +854,17 @@ long double get_elapsed(chrono::system_clock::time_point clock_start) {
 //   [計時]
 //    clock_start() タイマを開始し、開始時点の情報を返す(get_elapsedに入力するための情報)
 //    get_elapsed(chrono::system_clock::time_point clock_start) clock_startからの経過時間（msec）を取得
+
+int main(){
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    cout << setprecision(18);
+    
+    ld a;
+    cin >> a;
+    if (a >= 37.99) print(1);
+    elif (a >= 37.49) print(2);
+    else print(3);
+    
+    return 0;
+}
