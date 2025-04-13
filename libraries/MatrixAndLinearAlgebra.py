@@ -16,6 +16,21 @@ def mat_mul(P, Q, mod = 0):
     R.append(r0)
   return R
 
+# 行列累乗 (P ^ N)
+def mat_pow(P, N, mod = 0):
+    P_pow = [P]
+    for _ in range(N.bit_length() + 1):
+        P_pow.append(mat_mul(P_pow[-1], P_pow[-1], mod))
+    ans = [[int(i == j) for j in range(len(P))] for i in range(len(P))]
+    j = 0
+    NN = N
+    while NN > 0:
+        if NN & 1:
+            ans = mat_mul(ans, P_pow[j], mod)
+        NN >>= 1
+        j += 1
+    return ans
+
 # 行列P * ベクトルv
 def mat_vec_mul(P, v, mod = 0):
   if len(P[0]) != len(v):
