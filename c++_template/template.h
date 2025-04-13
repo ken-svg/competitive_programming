@@ -7,6 +7,9 @@ using chr = char;
 using ull = unsigned long long;
 using ll = long long;
 using ld = long double;
+using i128 = __int128;
+using u128 = unsigned __int128;
+using f128 = __float128;
 template <typename K, typename V>
 using umap = unordered_map<K, V>;
 template <typename T>
@@ -113,6 +116,32 @@ const ll MOD = 998244353;
 #define rep_triplet(f, s, t, A) for(auto [f, s, t]: A)
 
 // コンテナの標準出力をオーバーロード
+ostream& operator<<(ostream& os, u128 i) {
+    u128 L = pow(10LL, 13);
+    u128 L2 = L * L;
+    if (i >= L2) {
+        os << ull(i / L2);
+        i -= i / L2 * L2;
+    }
+    if (i >= L) {
+        os << ull(i / L);
+        i -= i / L * L;
+    }
+    os << ull(i);
+    return os;
+}
+ostream& operator<<(ostream& os, i128 i) {
+    if (i < 0) {
+        os << '-';
+        i *= -1;
+    }
+    os << u128(i);
+    return os;
+}
+ostream& operator<<(ostream& os, f128 v) {
+    os << ld(v);
+    return os;
+}
 template <typename T1, typename T2>
 ostream& operator<<(ostream& os, const pair<T1, T2>& t) {
     os << "(" << t.first << ", " << t.second << ")";
@@ -785,6 +814,7 @@ long double get_elapsed(chrono::system_clock::time_point clock_start) {
 //   ld: long double
 //   str: string
 //   chr: char
+//   i128, u128, f128: 128bit整数、小数
 //   [コンテナ]
 //    v_(**): vector<**>
 //    vv_(**): vector<vector<**>>
@@ -796,8 +826,8 @@ long double get_elapsed(chrono::system_clock::time_point clock_start) {
 //    uset: unordered_set;
 //    mset: multiset;
 //    umset: unordered_multiset;
-//    gpque: max-priority_queue;
-//    lpque: min-priority_queue;
+//    gpque: (max)priority_queue;
+//    lpque: (min)priority_queue;
 
 //　定数：
 //   MOD = 998244353
@@ -854,7 +884,6 @@ long double get_elapsed(chrono::system_clock::time_point clock_start) {
 //   [計時]
 //    clock_start() タイマを開始し、開始時点の情報を返す(get_elapsedに入力するための情報)
 //    get_elapsed(chrono::system_clock::time_point clock_start) clock_startからの経過時間（msec）を取得
-
 int main(){
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
