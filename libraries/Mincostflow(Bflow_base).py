@@ -111,8 +111,10 @@ class MinCostFlow(): # primal dual
       else:
         self.potential[i] += max_dist
       
-  def find_flow(self):
+  def find_flow(self, record_point = None, record_list = None):
     flag = True
+    if record_point is not None:
+      record_list.append([self.balance[record_point], self.total_cost])
     while flag:
       self._update_potential()
       task = deque([v for v in self.b_pos])
@@ -146,6 +148,10 @@ class MinCostFlow(): # primal dual
           rev[0] -= flux_now
           rev[-1][0] += flux_now
           self.total_cost += -flux_now * rev[2]
+          
+        if flux_now > 0 and record_point is not None:
+          record_list.append([self.balance[record_point], self.total_cost])
+          
     return len(self.b_pos) == 0
       
   def minimize_flow_ST(self, S, T): # 解ありとなる最小のS->T流量
@@ -165,7 +171,58 @@ class MinCostFlow(): # primal dual
       return -1 # 充足不可能
     else:
       return self.balance[S]
+      
+  def maximize_flow_ST(self, S, T): # 解ありとなる最大のS->T流量
+    # B[S] = B[T] = 0 が必要
+    inf = 1 << 30
+    
+    self.add_edge(T, S, cost = 0, cap = inf, low = 0) # T -> Sの辺で循環できるように
+    self.find_flow()
+    fail_flag = len(self.b_pos) > 0
+    self.set_edge(-1, cost_new = 0, cap_new = 0)
+    self.edges.pop()
+    self.edges.pop()
+    self.I[S].pop()
+    self.I[T].pop()
+    
+    if fail_flag:
+      return -1 # 充足不可能
+    
+    # S, Tに大きな流圧をかける
+    inf = 1 << 30
+    self.set_vertex(S, inf)
+    self.set_vertex(T, -inf)
+    self.find_flow()
+    self.I[S].pop()
+    self.I[T].pop()
+    
+    self.set_vertex(S, 0)
+    self.set_vertex(T, 0)
+    
+    return self.balance[S]
   
+  def flow_cost_slope_ST(self, S, T): # 流量とコストのスロープを作成（S->T流量は自由）
+    # B[S] = B[T] = 0 が必要
+    
+    # step1: 解ありとなる最小流量(S -> T)を求める 
+    v = self.minimize_flow_ST(S, T)
+    if v == -1:
+      return None # 充足不可能
+    
+    # step2: S -> T流量を自由化したうえで最小コストを求める
+    inf = 1 << 30
+    
+    self.set_vertex(S, inf)
+    self.set_vertex(T, -inf)
+    
+    record_list = []
+    self.find_flow(S, record_list)
+    
+    self.set_vertex(S, 0)
+    self.set_vertex(T, 0)
+    
+    return [[inf - b, v] for b, v in record_list]
+    
   def minimize_cost_ST(self, S, T): # 解の中でコストを最小化（S->T流量は自由）
     # B[S] = B[T] = 0 が必要
     
@@ -218,30 +275,6 @@ class MinCostFlow(): # primal dual
     ret += " Balance(now / set):\n   {:}\n".format(["{:}/{:}".format(v, w) for v, w in zip(self.balance, self.B)])
     ret += " Edges(fr -> to : flux (cost, cap = [low, upp])):\n"
     for e in self:
-      ret += "  {:} -> {:} : {:} (cost = {:}, cap = [{:}, {:}])".format(e[1], e[2], e[0], e[3], e[5], e[4]) + "}\n"
+      ret += "  {:} -> {:} : {:} (cost = {:}, cap = [{:}, {:}])".format(e[1], e[2], e[0], e[3], e[5], e[4]) + "\n"
     ret.rstrip("\n")
     return ret
-    
-
-N, M = map(int,input().split())
-if N == 0:
-  print(0)
-  exit()
-B = [int(input()) for _ in range(N)]
-mcf = MinCostFlow(N, B)
-
-for _ in range(M):
-  s, t, l, u, c = map(int,input().split())
-  mcf.add_edge(s, t, c, u, l)
-  
-mcf.find_flow()
-#print(mcf.b_neg)
-
-if not mcf.is_balanced():
-  print("infeasible")
-else:
-  print(mcf.total_cost)
-  for v in mcf.potential:
-    print(v)
-  for e in mcf.edges[::2]:
-    print(e[0])
