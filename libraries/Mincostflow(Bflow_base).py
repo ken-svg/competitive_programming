@@ -21,6 +21,14 @@ class MinCostFlow(): # primal dual
     self.b_neg = set([i for i in range(N) if self.balance[i] < 0])
     
     self.total_cost = 0
+    
+    self.cost_scaling = False
+    
+  def activate_cost_scaling(self):
+    self.cost_scaling = True
+    
+  def disable_cost_scaling(self):
+    self.cost_scaling = False
   
   def is_balanced(self):
     return not(self.b_pos)
@@ -89,9 +97,9 @@ class MinCostFlow(): # primal dual
     rev[3] = -low_new
     self.total_cost += edge[0] * edge[2]
     
-  def _update_potential(self):
+  def _update_potential(self, delta = 1): # delta 緩和
     dist = [-1] * self.N
-    task = [[0, v] for v in self.b_pos]
+    task = [[0, v] for v in self.b_pos if self.balance[v] >= delta]
     vis = [False] * self.N
     while task:
       d, p = heappop(task)
@@ -101,7 +109,7 @@ class MinCostFlow(): # primal dual
       
       for edge in self.I[p]:
         flux, q, cost, cap, rev = edge
-        if vis[q] or cap == flux: continue
+        if vis[q] or cap - flux < delta: continue
         heappush(task, [d + cost + self.potential[p] - self.potential[q], q])
         
     max_dist = max(dist)
@@ -110,31 +118,28 @@ class MinCostFlow(): # primal dual
         self.potential[i] += dist[i]
       else:
         self.potential[i] += max_dist
-      
-  def find_flow(self, record_point = None, record_list = None):
-    flag = True
-    if record_point is not None:
-      record_list.append([self.balance[record_point], self.total_cost])
-    while flag:
-      self._update_potential()
-      task = deque([v for v in self.b_pos])
+  
+  def _find_path_and_flow(self, record_point = None, record_list = None, delta = 1):
+      task = deque([v for v in self.b_pos if self.balance[v] >= delta])
       prv = [None] * self.N
-      vis = [self.balance[v] > 0 for v in range(self.N)]
+      vis = [self.balance[v] >= delta for v in range(self.N)]
       while task:
         p = task.popleft()
         for edge in self.I[p]:
           flux, q, cost, cap, rev = edge
           if vis[q] or cost + self.potential[p] - self.potential[q] != 0 or cap == flux: continue
           task.append(q)
+          #print(p, q)
           prv[q] = rev
           vis[q] = True
           
       flag = False
       for v in list(self.b_neg):
+        if self.balance[v] > -delta: continue
         flux_now = -self.balance[v]
         v_now = v
         path = []
-        while prv[v_now] is not None and self.balance[v_now] <= 0:
+        while prv[v_now] is not None and self.balance[v_now] < delta:
           rev = prv[v_now]
           flux_now = min(flux_now, rev[-1][3] - rev[-1][0])
           v_now = rev[1]
@@ -151,9 +156,49 @@ class MinCostFlow(): # primal dual
           
         if flux_now > 0 and record_point is not None:
           record_list.append([self.balance[record_point], self.total_cost])
-          
-    return len(self.b_pos) == 0
+      return flag    
+  
+  def find_flow(self, record_point = None, record_list = None):
+    if self.cost_scaling:
+      self._find_flow_with_cost_scaling()
+    
+    else:    
+      flag = True
+      if record_point is not None:
+        record_list.append([self.balance[record_point], self.total_cost])
+      while flag:
+        self._update_potential()
+        flag &= self._find_path_and_flow(record_point, record_list)
       
+    return len(self.b_pos) == 0
+  
+  def _find_flow_with_cost_scaling(self):
+    max_cap = 0
+    for e in self.edges:
+      if e[3] - e[0] > 0:
+        max_cap = max(max_cap, e[3] - e[0])
+    
+    delta = 1 << max_cap.bit_length()
+    while delta > 1:
+      delta >>= 1
+      
+      # 負辺除去
+      for e in self.edges:
+        to = e[1]
+        fr = e[-1][1]
+        if e[3] - e[0] >= delta and e[2] + self.potential[fr] - self.potential[to] < 0:
+          v = e[3] - e[0]
+          e[0] += v
+          e[-1][0] -= v
+          self._update_balance(fr, -v)
+          self._update_balance(to, v)
+          self.total_cost += e[2] * v
+      
+      flag = True
+      while flag:
+        self._update_potential(delta = delta)
+        flag &= self._find_path_and_flow(delta = delta)
+  
   def minimize_flow_ST(self, S, T): # 解ありとなる最小のS->T流量
     # B[S] = B[T] = 0 が必要
     inf = 1 << 30
@@ -253,7 +298,6 @@ class MinCostFlow(): # primal dual
     
     return self.total_cost
     
-    
   def __getitem__(self, e_id):
     edge = self.edges[e_id << 1]
     rev = edge[-1]
@@ -278,3 +322,23 @@ class MinCostFlow(): # primal dual
       ret += "  {:} -> {:} : {:} (cost = {:}, cap = [{:}, {:}])".format(e[1], e[2], e[0], e[3], e[5], e[4]) + "\n"
     ret.rstrip("\n")
     return ret
+
+# 入力関係    
+#  self.__init__(N, B, pot) # 頂点数Nのグラフを作る。B：入力流量、pot：初期ポテンシャル（適切であれば高速化に寄与）
+#  self.add_edge(fr, to, cost, cap, low = 0) # 辺追加： fr -> to (cost, [low, cap]) 
+#  self.cost_scaling # Trueならcost scaling (O(ElogF*(Dijkstara)))。FalseならO(F*(Dijkstara))
+
+# 状態取得
+#  print(self) # 内部状態を出力
+#  self.is_balanced() # 入力流量が解消していればTrue
+#  self[e_id] # e_id番目の辺状態を出力 [flow, fr, to, cost, cap, low]　（for文でイテレーション可）
+#  self.balance　# 各点の保持流量
+#  self.potential # 各点のポテンシャル
+
+# 求解
+#  self.find_flow() # 流量制約を満たし、入力流量を解消する（feasibleな）解を発見（存在しないときはFalseを返す）
+#  self.minimize_flow_ST(S, T) # S->T流量を自由とたfeasibleな解のなかで、最小のS->T流量を返す
+#  self.maximize_flow_ST(S, T) # S->T流量を自由とたfeasibleな解のなかで、最大のS->T流量を返す
+#  self.minimize_cost_ST(S, T) # S->T流量を自由とたfeasibleな解のなかで、最小コストを返す
+#  self.flow_cost_slope_ST(S, T) 
+#   # [self.cost_scaling = Falseを要求] S->T流量を自由とし、feasibleな解のなかで、[S->T流量, cost]の下凸曲線を返す（はず。未検証）
