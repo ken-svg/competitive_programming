@@ -128,25 +128,27 @@ def factoring(n):
     fac.append(n)
   return fac
 
-from math import sqrt, ceil
+from math import isqrt
 def Wheel_Sieve(N): # N以下の素数の列挙
   # N以下の素因数を列挙
   if N <= 23:
     return [a for a in [2, 3, 5, 7, 11, 13, 17, 19, 23] if a <= N]
   
   ans = []
-  M = ceil(sqrt(N) + 1)
+  M = isqrt(N)
   # Step1: w = p1 * p2 * ... * pr <= M　なる、要素が最小の素数列{pi}を求める
   vis = [False] * (M+1)
   w = 1
   for p in range(2, M+1):
     if vis[p]: continue
     w *= p 
-    if w * p > M: break
+    if w * p > M: 
+      w //= p  
+      break
     ans.append(p)
     for q in range(p, M+1, p):
       vis[q] = True
-    
+  
   
   # Step2: w = p1 * p2 * ... * prと互いに素な、w以下の数の集合Sを求める 
   S = [v for v in range(1, w+1) if not vis[v]]
@@ -168,8 +170,23 @@ def Wheel_Sieve(N): # N以下の素数の列挙
         if p > mpf: break
         if p * s > N: break
         min_prime_factor[p * s // 2] = p
-      
-  return ans + ans2
+        
+  ans.extend(ans2)    
+  return ans
+
+from math import isqrt  
+def Eratos_Sieve(N):
+  if N <= 1:
+    return []
+    
+  vis = [False] * (N + 1)
+  vis[0] = vis[1] = True
+  M = isqrt(N)
+  for p in range(2, M + 1):
+    if vis[p]: continue
+    for q in range(2 * p, N + 1, p):
+      vis[q] = True
+  return [v for v in range(N + 1) if not vis[v]]
 
 from random import randint
 # 奇素数modでの平方根
