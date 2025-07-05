@@ -217,8 +217,8 @@ class MinCostFlow_NS(): # network_simplex法
     if flux_diff != 0:
       self.balance[rev[1]] -= flux_diff # fr
       self.balance[edge[1]] += flux_diff # to
-      self.prv[fr] = None
-      self.prv[to] = None
+      self.prv[rev[1]] = None
+      self.prv[edge[1]] = None
       
     edge[0] = flux_new
     rev[0] = -flux_new
@@ -228,6 +228,83 @@ class MinCostFlow_NS(): # network_simplex法
     rev[3] = -low_new
       
     self.total_cost += edge[0] * edge[2]
+  
+  def minimize_flow_ST(self, S, T): # 解ありとなる最小のS->T流量
+    # B[S] = B[T] = 0 が必要
+    inf = 1 << 30
+    
+    self.add_edge(T, S, cost = inf, cap = inf, low = 0) # T -> Sの辺で循環できるように
+    self.find_flow()
+    fail_flag = any([self.balance[i] != 0 for i in range(self.N)])
+    self.set_edge(-1, cost_new = 0, cap_new = 0)
+    self.edges.pop()
+    self.edges.pop()
+    self.I[S].pop()
+    self.I[T].pop()
+    
+    if fail_flag:
+      return -1 # 充足不可能
+    else:
+      return self.balance[S]
+      
+  def maximize_flow_ST(self, S, T): # 解ありとなる最大のS->T流量
+    # B[S] = B[T] = 0 が必要
+    inf = 1 << 30
+    
+    self.add_edge(T, S, cost = 0, cap = inf, low = 0) # T -> Sの辺で循環できるように
+    self.find_flow()
+    fail_flag = any([self.balance[i] != 0 for i in range(self.N)])
+    self.set_edge(-1, cost_new = 0, cap_new = 0)
+    self.edges.pop()
+    self.edges.pop()
+    self.I[S].pop()
+    self.I[T].pop()
+    
+    if fail_flag:
+      return -1 # 充足不可能
+    
+    # S, Tに大きな流圧をかける
+    inf = 1 << 30
+    self.set_vertex(S, inf)
+    self.set_vertex(T, -inf)
+    self.find_flow()
+    self.I[S].pop()
+    self.I[T].pop()
+    
+    self.set_vertex(S, 0)
+    self.set_vertex(T, 0)
+    
+    return self.balance[S]
+    
+  def minimize_cost_ST(self, S, T): # 解の中でコストを最小化（S->T流量は自由）
+    # B[S] = B[T] = 0 が必要
+    
+    # step1: 解ありとなる最小流量(S -> T)を求める 
+    v = self.minimize_flow_ST(S, T)
+    if v == -1:
+      return None # 充足不可能
+    
+    # step2: S -> T流量を自由化したうえで最小コストを求める
+    inf = 1 << 30
+    
+    self.set_vertex(S, inf)
+    self.set_vertex(T, -inf)
+    self.add_edge(S, T, cost = 0, cap = inf, low = 0)
+    self.find_flow()
+    
+    mp = min(self.potential)
+    self.potential = [v - mp for v in self.potential]
+    
+    self.set_edge(-1, cost_new = 0, cap_new = 0)
+    self.edges.pop()
+    self.edges.pop()
+    self.I[S].pop()
+    self.I[T].pop()
+    
+    self.set_vertex(S, 0)
+    self.set_vertex(T, 0)
+    
+    return self.total_cost
     
   def __getitem__(self, e_id):
     edge = self.edges[e_id << 1]
@@ -253,3 +330,21 @@ class MinCostFlow_NS(): # network_simplex法
       ret += "  {:} -> {:} : {:} (cost = {:}, cap = [{:}, {:}])".format(e[1], e[2], e[0], e[3], e[5], e[4]) + "\n"
     ret.rstrip("\n")
     return ret
+
+# 入力関係    
+#  self.__init__(N, B, pot) # 頂点数Nのグラフを作る。B：入力流量、pot：初期ポテンシャル（適切であれば高速化に寄与）
+#  self.add_edge(fr, to, cost, cap, low = 0) # 辺追加： fr -> to (cost, [low, cap]) 
+#  self.cost_scaling # Trueならcost scaling (O(ElogF*(Dijkstara)))。FalseならO(F*(Dijkstara))
+
+# 状態出力
+#  print(self) # 内部状態を出力
+#  self.is_balanced() # 入力流量が解消していればTrue
+#  self[e_id] # e_id番目の辺状態を出力 [flow, fr, to, cost, cap, low]　（for文でイテレーション可）
+#  self.balance　# 各点の保持流量
+#  self.potential # 各点のポテンシャル
+
+# 求解
+#  self.find_flow() # 流量制約を満たし、入力流量を解消する（feasibleな）解を発見（存在しないときはFalseを返す）
+#  self.minimize_flow_ST(S, T) # S->T流量を自由としたfeasibleな解のなかで、最小のS->T流量を返す
+#  self.maximize_flow_ST(S, T) # S->T流量を自由としたfeasibleな解のなかで、最大のS->T流量を返す
+#  self.minimize_cost_ST(S, T) # S->T流量を自由としたfeasibleな解のなかで、最小コストを返す
