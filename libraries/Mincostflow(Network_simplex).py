@@ -332,9 +332,8 @@ class MinCostFlow_NS(): # network_simplex法
     return ret
 
 # 入力関係    
-#  self.__init__(N, B, pot) # 頂点数Nのグラフを作る。B：入力流量、pot：初期ポテンシャル（適切であれば高速化に寄与）
+#  self.__init__(N, B, pot) # 頂点数Nのグラフを作る。B：入力流量
 #  self.add_edge(fr, to, cost, cap, low = 0) # 辺追加： fr -> to (cost, [low, cap]) 
-#  self.cost_scaling # Trueならcost scaling (O(ElogF*(Dijkstara)))。FalseならO(F*(Dijkstara))
 
 # 状態出力
 #  print(self) # 内部状態を出力
