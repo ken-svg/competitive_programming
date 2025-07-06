@@ -268,8 +268,6 @@ class MinCostFlow_NS(): # network_simplex法
     self.set_vertex(S, inf)
     self.set_vertex(T, -inf)
     self.find_flow()
-    self.I[S].pop()
-    self.I[T].pop()
     
     self.set_vertex(S, 0)
     self.set_vertex(T, 0)
