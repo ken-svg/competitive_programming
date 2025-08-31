@@ -10,8 +10,8 @@ class LinkedList():
     for i in range(len(A) - 1):
       a = A[i]
       b = A[i + 1]
-      self.left[a] = b
-      self.right[b] = a
+      self.right[a] = b
+      self.left[b] = a
       
     self.left[self.head] = None
     self.right[self.tail] = None
