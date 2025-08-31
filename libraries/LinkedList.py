@@ -62,9 +62,9 @@ class LinkedList():
     l = self.left[v]
     r = self.right[v]
     if self.head == v:
-      self.head = r
+      self.head = l
     if self.tail == v:
-      self.tail = l
+      self.tail = r
     
     if l is not None:
       self.right[l] = r
