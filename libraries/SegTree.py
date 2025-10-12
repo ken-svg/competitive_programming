@@ -44,64 +44,83 @@ class SegTree():
       return op(op(ans_lt, data[l]), ans_rt)
     elif r == l:
       return op(ans_lt, ans_rt)    
-
-def bisect_left(self, a): 
-    # B[i] = st.apply(st[:i]) として、Bを値aについて二分探索。挿入位置（左よせ）を返す。
-    # 同じ値があるときは、その値よりも左の位置を返す
-    data = self.data
-    n = self.n
-    if data[1] < a:
-      return n
-    
-    m = len(data) // 2
-    
-    op = self.op
-    
-    now_pos = 1
-    now_val = self.ie
-    while now_pos < m:
-      next_pos = (now_pos << 1) | 1
-      next_val = op(now_val, data[next_pos - 1])
-      if next_val < a:
-        now_val = next_val
-        now_pos = next_pos
-      else:
-        now_pos = next_pos - 1
-        
-    return min(now_pos - m, n-1)
   
-def bisect_right(self, a): 
-    # B[i] = st.apply(st[:i]) として、Bを値aについて二分探索。挿入位置（左よせ）を返す。
-    # 同じ値があるときは、その値よりも右の位置を返す
-    data = self.data
-    n = self.n
-    if data[1] <= a:
-      return n
+  def bisect(self, cond, l = 0): 
+    # 条件condを指定すると、cond(apply(l, r))がTrueとなる最大のrを返す。
+    # condは以下を満たす:
+    # ・cond(apply(l, r))がrについて単調　（例：op = min, cond(x) = [xはある数以上である] ）
+    # ・cond(apply(l, l)) = cond(self.ie) = True
     
-    m = len(data) // 2
+    v = self.apply(l, self.size)
+    if cond(v): return self.n 
+    # はじめに、self.apply(l, self.size)を計算。この結果がTrueなら全区間[l, self.n)が答えなのでself.nを返す。
     
-    op = self.op
-    
-    now_pos = 1
+    size = self.size; op = self.op; data = self.data;
     now_val = self.ie
-    while now_pos < m:
-      next_pos = (now_pos << 1) | 1
-      next_val = op(now_val, data[next_pos - 1])
-      if next_val <= a:
-        now_val = next_val
-        now_pos = next_pos
-      else:
-        now_pos = next_pos - 1
+    now = l + size
+    while now & 1 == 0:
+      now >>= 1
+    # 左端をlとする最大区間を表すノードから開始。
+    
+    while True:
+      if cond(op(now_val, data[now])): # 現在の区間の分だけ延伸してもcondがTrueのまま
+        now_val = op(now_val, data[now])
+        now = now + 1
+        while now & 1 == 0:
+          now >>= 1
+        # 右隣へ移動
+      else: # 現在の区間を延伸するとFalseとなる
+        if now >= size: # 葉ノードであれば、現区間の左端を答えて終了
+          return now - size
         
-    return min(now_pos - m, n-1)
-  
-# 利点：
-# 区間総和をO(log N)の時間で行うことができる。
-# 上記のメリットを享受しながら、1点の更新時間をO(log N)に抑えられる
-
-# 用法一覧：
-# def construct(self, A) # 初期構成。初期値A(配列)をインプットする
-# def update(self, i, x) # i番目をxで更新
-# def apply(self, l, r) # 半開区間[l,r)の計算結果を出力 (0 <= l < r <= N)
-# def bisect_left(self, a) # B[i] = st.apply(st[:i]) として、Bを値aについて二分探索。挿入位置（左よせ）を返す。同じ値があるときは、その値よりも左の位置を返す。
-# def bisect_right(self, a) # B[i] = st.apply(st[:i]) として、Bを値aについて二分探索。挿入位置（左よせ）を返す。同じ値があるときは、その値よりも右の位置を返す。
+        # そうでなければ、左の子へ移る
+        now <<= 1
+        
+  def bisect_r(self, cond, r): 
+    # 条件condを指定すると、cond(apply(l, r))がTrueとなる最小のlを返す。
+    # condは以下を満たす:
+    # ・cond(apply(l, r))がlについて単調　（例：op = min, cond(x) = [xはある数以上である] ）
+    # ・cond(apply(r, r)) = cond(self.ie) = True
+    
+    v = self.apply(0, r)
+    if cond(v): return 0
+    # はじめに、self.apply(0, r)を計算。この結果がTrueなら全区間[0, r)が答えなので0を返す。
+    
+    size = self.size; op = self.op; data = self.data;
+    now_val = self.ie
+    if r == size:
+      now = 1
+    else:
+      now = r + size
+      while now & 1 == 0:
+        now >>= 1
+      now -= 1
+    # 右端をrとする最大区間を表すノードから開始。
+    
+    while True:
+      if cond(op(data[now], now_val)): # 現在の区間の分だけ延伸してもcondがTrueのまま
+        now_val = op(data[now], now_val)
+        while now & 1 == 0:
+          now >>= 1
+        now -= 1
+        # 左隣へ移動
+      else: # 現在の区間を延伸するとFalseとなる
+        if now >= size: # 葉ノードであれば、現区間の右端を答えて終了
+          return now - size + 1
+        
+        # そうでなければ、lazyを子へ伝播して、右の子へ移る
+        now <<= 1
+        now += 1
+      
+  def __str__(self):
+    ans = ["SegmentTree : "]
+    def rec(l, r, p, d):
+      if r - l > 1:
+        c = (r + l) // 2
+        rec(l, c, p * 2, d + 1)
+      ans.append("_" + "______" * d + "[{:}, {:}) : {:}".format(l, r, self.data[p]))
+      if r - l > 1:
+        c = (r + l) // 2
+        rec(c, r, p * 2 + 1, d + 1)
+    rec(0, self.size, 1, 0)    
+    return "\n".join(ans)
