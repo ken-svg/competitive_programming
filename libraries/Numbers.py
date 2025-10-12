@@ -265,3 +265,40 @@ def Sqrt_Tonelli_Shanks(a, p):
     b %= p
     shift += 1 
   return x
+
+import random
+
+def is_prime(n, k = 1000):
+    # Miller-Rabin 素数判定法
+    # nが素数か判定する。所定のテストをk回くりかえし、すべてのテストをクリアすれば素数と推定（断定はできない）
+    if n <= 1:
+      return False
+    if n <= 3:
+      return True
+    if n % 2 == 0:
+      return False
+
+    # n-1 = 2^r * d を求める
+    r, d = 0, n - 1
+    while d % 2 == 0:
+      d //= 2
+      r += 1
+
+    # k回の試行
+    for _ in range(k):
+      a = random.randrange(2, n - 1)
+      x = pow(a, d, n)
+
+      if x == 1 or x == n - 1:
+        continue
+
+      for _ in range(r - 1):
+        x = pow(x, 2, n)
+        if x == n - 1:
+          break
+          
+      else: # いずれの判定条件も満たさない場合
+        return False  # 合成数と判定（断定できる）
+
+    return True  # 素数の可能性が高い（断定できない）
+
