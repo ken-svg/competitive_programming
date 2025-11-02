@@ -267,7 +267,6 @@ def Sqrt_Tonelli_Shanks(a, p):
   return x
 
 import random
-
 def is_prime(n, k = 1000):
     # Miller-Rabin 素数判定法
     # nが素数か判定する。所定のテストをk回くりかえし、すべてのテストをクリアすれば素数と推定（断定はできない）
@@ -301,4 +300,42 @@ def is_prime(n, k = 1000):
         return False  # 合成数と判定（断定できる）
 
     return True  # 素数の可能性が高い（断定できない）
-
+    
+    
+# 素因数分解（ポラードのロー法による高速化）
+# !! is_prime()を含めること !!
+from math import isqrt, gcd
+def factoring(N):
+  if is_prime(N, 1000):
+    return [N]
+    
+  ans = []
+  if N <= 10 ** 7:
+    tmp = N
+    for p in range(2, isqrt(N) + 1):
+      while tmp % p == 0:
+        ans.append(p)
+        tmp //= p
+      if tmp == 1: continue
+    if tmp != 1:
+      ans.append(tmp)
+    return ans
+    
+  x = random.randint(1, N)
+  y = x
+  for c in range(1, N):
+    c = 1
+    for _ in range(isqrt(1 + isqrt(N))):
+      x = (x * x + c) % N
+      y = (y * y + c) % N
+      y = (y * y + c) % N
+      v = gcd(abs(x - y), n)
+      if v == 1:
+        continue
+      if v == N:
+        break
+      ans1 = factoring(v)
+      ans2 = factoring(N // v)
+      ans = ans1 + ans2
+      ans.sort()
+      return ans
