@@ -324,8 +324,7 @@ def factoring(N):
   x = random.randint(1, N)
   y = x
   for c in range(1, N):
-    c = 1
-    for _ in range(isqrt(1 + isqrt(N))):
+    for _ in range(2 * isqrt(1 + isqrt(N))):
       x = (x * x + c) % N
       y = (y * y + c) % N
       y = (y * y + c) % N
