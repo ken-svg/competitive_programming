@@ -180,8 +180,8 @@ def polynomial_taylor_shift(A, d): # A(x) -> A(x+d)
   return B
 
 def Bostan_Mori(P, Q, N): # [x^N] P(x) / Q(x)
-  num = P[:N+1] + [0] * max(0, N+1 - len(P))
-  den = Q[:N+1] + [0] * max(0, N+1 - len(P))
+  num = P[:N+1]
+  den = Q[:N+1]
   while N >= 1:
     den_neg = []
     fac = 1
