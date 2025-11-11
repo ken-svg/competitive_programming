@@ -72,7 +72,7 @@ def _butterfly_inv(A):
       fac_inv *= Root_inv[(~s & -(~s)).bit_length() - 1]
       fac_inv %= mod 
       
-def fps_power(A, B): # A * B
+def fps_mul(A, B): # A * B
   NP = len(A) + len(B) - 1
   N = 1 << (NP-1).bit_length()
   N_inv = inv(N, mod)
@@ -82,22 +82,36 @@ def fps_power(A, B): # A * B
   _butterfly(B)
   C = [(fa * fb) % mod for fa, fb in zip(A, B)]
   _butterfly_inv(C)
+  while C[-1] == 0:
+    C.pop()
   return C
 
 def fps_inv(A, length): # 1 / A, length-1次まで求める
-  if A[0] == 0:
-    print("<fps_inv: Zero division!>")
-  G = [inv(A[0], mod)]
-  A_neg = [-A[i] for i in range(min(len(A), length))]
-  if length > len(A_neg):
-    A_neg += [0] * (length - len(A))
-  now_len = 1
-  while now_len < length:
-    next_len = min(length, now_len << 1)
-    H = fps_power(G, A_neg[:next_len])[now_len:next_len]
-    G[len(G):] = fps_power(G, H)[:next_len-now_len]
-    now_len = next_len
-  return G
+  if not A or A[0] == 0:
+    raise ZeroDivisionError("<fps_inv: First term is Zero!>")
+    return
+  f = [inv(A[0], mod)]
+  for l in range((length - 1).bit_length()):
+    F_f = f + [0] * (1 << l)
+    _butterfly(F_f)
+    F_A = A[:1 << (l + 1)] + [0] * max(0, (1 << (1 + l)) - len(A))
+    _butterfly(F_A)
+    norm = inv(1 << (l + 1), mod)
+    
+    fA = [(a * b) % mod for a, b in zip(F_f, F_A)]
+    _butterfly_inv(fA)
+    fA = [(v * norm) % mod for v in fA]
+    
+    F_fA_high = fA[1 << l:] + [0] * (1 << l)
+    _butterfly(F_fA_high)
+    
+    delta = [-(a * b) % mod for a, b in zip(F_fA_high, F_f)]
+    _butterfly_inv(delta)
+    delta = [(v * norm) % mod for v in delta[:1 << l]]
+    
+    f.extend(delta)
+    
+  return f
 
 def polynomial_div(A, B): # A // B
   A = [a for a in A]
@@ -107,7 +121,8 @@ def polynomial_div(A, B): # A // B
   while B[-1] == 0:
     B.pop()
   if len(B) == 0:
-    print("<polynomial_div: Zero division!>")
+    raise ZeroDivisionError("<polynomial_div: Zero division!>")
+    return
   if len(A) < len(B):
     return [0]
   N = len(A) - len(B) + 1
@@ -116,6 +131,7 @@ def polynomial_div(A, B): # A // B
 
 def fps_dif(A): # dA / dx
   return [(A[i] * i) % mod for i in range(1, len(A))]
+  
 def fps_int(A): # \int (A dx)
   ans = [0]
   for i in range(len(A)):
@@ -124,14 +140,16 @@ def fps_int(A): # \int (A dx)
 
 def fps_log(A, length): # log(A), Aは定数項が[1], length-1次まで
   if A[0] != 1:
-    print("<fps_log> First term is not 1! ({})".format(A[0])); return;
+    raise ValueError("<fps_log> First term is not 1! ({})".format(A[0]))
+    return
   A_inv = fps_inv(A, length)
   A_dif = fps_dif(A)
   return fps_int(fps_power(A_inv, A_dif)[:length-1])
 
 def fps_exp(A, length): # exp(A), Aは定数項が[0], length-1次まで
     if A[0] != 0:
-      print("<fps_exp> First term is not 0! ({})".format(A[0])); return;
+      raise ValueError("<fps_exp> First term is not 0! ({})".format(A[0]))
+      return
     G = [1]
     # gn = gp(f + 1 - log(gp))
     now_len = 1
@@ -194,7 +212,7 @@ def Bostan_Mori(P, Q, N): # [x^N] P(x) / Q(x)
     N //= 2
   
   return num[0] * inv(den[0], mod)
-
+  
 def fps_commonize_denominator(P, Q): # P[i]/Q[i] の和を通分
   def derive(l, r, P, Q):
     if r - l == 1:
@@ -215,22 +233,3 @@ def fps_commonize_denominator(P, Q): # P[i]/Q[i] の和を通分
       P2[i] %= mod
     return P2, Q
   return derive(0, len(P), P, Q)
-
-
-
-  
-# example
-A = [0, 1, 4]
-B = [1, 3, 3, 1]
-a = fps(A)
-b = fps(B)
-print(a + b, a - b)
-print(a * b, a / b)
-print(a // b, a % b)
-print(a.differenciate())
-print(b.integrate())
-print(b.log())
-print(a.exp())
-print(a.power(2), b.power(1000))
-print(b.shift(-1))
-
